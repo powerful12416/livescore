@@ -1,54 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore REAL</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiveScore PRO</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f1419;color:#fff;font-family:system-ui;padding:12px}
-.header{background:#1a2332;padding:14px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:12px;position:sticky;top:0}
-.live-dot{width:10px;height:10px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 1s infinite}
-@keyframes pulse{50%{opacity:.3}}
-.match{background:#1e293b;padding:14px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.score{color:#00ff88;font-weight:bold;font-size:18px}
-.league{font-size:11px;color:#94a3b8;margin-bottom:3px}
-.status{font-size:11px;background:#00ff88;color:#000;padding:3px 6px;border-radius:4px}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0e1117;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+.top{padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0e1117;z-index:10;border-bottom:1px solid #1f242f}
+.top h1{font-size:16px} .top small{color:#8b8f99}
+.tabs{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;background:#0e1117;position:sticky;top:53px;z-index:9}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:8px 18px;border-radius:20px;background:#1e222b;color:#8b8f99;border:none;font-weight:600;font-size:14px;cursor:pointer}
+.tab.active{background:#1fd464;color:#000}
+.tab-drop{padding:8px 12px;border-radius:20px;background:#1e222b;color:#8b8f99;border:none}
+.filters{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.f{white-space:nowrap;padding:7px 14px;border-radius:8px;background:#1e222b;color:#8b8f99;border:1px solid #2a303f;font-size:13px;font-weight:600;cursor:pointer}
+.f.active{background:#fff;color:#000}
+.search{margin:8px 16px;background:#1a1f2b;border-radius:10px;display:flex;align-items:center;padding:10px 14px;gap:8px}
+.search input{flex:1;background:transparent;border:none;color:#fff;outline:none;font-size:14px}
+.league-head{background:#151a25;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #1f242f;margin-top:4px;cursor:pointer}
+.league-head b{font-size:12px;color:#c9cdd6;letter-spacing:.5px}
+.league-head span{font-size:11px;color:#1fd464;font-weight:600}
+.match-row{display:flex;align-items:center;padding:12px 16px;background:#0e1117;border-bottom:1px solid #1a1f2b;cursor:pointer}
+.match-row:active{background:#1a1f2b}
+.time{width:42px;font-size:12px;color:#8b8f99;font-weight:600}
+.teams{flex:1;font-size:14px;line-height:20px}
+.teams div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.score{width:28px;text-align:right;font-weight:700;color:#fff}
+.dot{width:6px;height:6px;background:#ff3b30;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+.modal{position:fixed;inset:0;background:#0e1117;z-index:100;padding:16px;overflow:auto;display:none}
+.modal.show{display:block}
+.badge{font-size:10px;padding:2px 6px;border-radius:4px;background:#1e222b;color:#8b8f99;margin-left:6px}
 </style>
 </head>
 <body>
-<div class="header"><b>⚽ LIVESCORE</b><span><span class="live-dot"></span> REAL LIVE (<span id="count">-</span>)</span></div>
-<div id="list" style="text-align:center;padding:30px;">Loading REAL matches...</div>
+<div class="top">
+  <span onclick="history.back()" style="font-size:22px;cursor:pointer">←</span>
+  <div><h1 id="dateHead">Oct 16, 2026</h1><small id="timeHead">11:27 AM - Europe/Lagos</small></div>
+</div>
+
+<div class="tabs" id="dayTabs"></div>
+
+<div class="filters">
+  <button class="f active" data-f="all" onclick="setFilter('all')">All</button>
+  <button class="f" data-f="live" onclick="setFilter('live')">Live</button>
+  <button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button>
+  <button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button>
+  <button class="f" onclick="loadMatches(currentDate)">↻ Refresh</button>
+</div>
+
+<div class="search"><span>🔍</span><input id="q" placeholder="Search team, league..." oninput="render()"></div>
+
+<div id="list"></div>
+
+<div id="modal" class="modal" onclick="this.classList.remove('show')">
+  <div style="display:flex;justify-content:space-between"><b id="mTitle"></b><span style="cursor:pointer;font-size:20px">✕</span></div>
+  <div id="mBody" style="margin-top:20px"></div>
+</div>
+
 <script>
-async function load(){
-  const list=document.getElementById('list');
-  const count=document.getElementById('count');
+let allMatches=[], currentFilter='all', currentDate=new Date().toISOString().split('T')[0];
+const fmtDate = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const fmtEuro = (timeStr, dateStr) => {
   try{
-    const r=await fetch('/api/matches');
-    const d=await r.json();
-    const ms = d.data?.matches || d.data || d.matches || [];
-    count.innerText = ms.length;
-    if(!ms.length){
-      list.innerHTML = 'No matches at this exact time. Try again later.';
-      return;
-    }
-    list.innerHTML=ms.map(m=>`
-      <div class="match">
-        <div>
-          <div class="league">${m.league?.name||'League'} • ${m.kickoff||''} • ${m.status||''}</div>
-          <div><b>${m.home?.name||m.home_team||'Home'}</b> vs <b>${m.away?.name||m.away_team||'Away'}</b></div>
-        </div>
-        <div style="text-align:right">
-          <div class="score">${m.score?.home??m.home_score??m.scores?.home??'-'} - ${m.score?.away??m.away_score??m.scores?.away??'-'}</div>
-          <div class="status">${m.status||'LIVE'}</div>
-        </div>
-      </div>`).join('');
-  }catch(e){
-    list.innerHTML='Error: '+e.message;
-  }
+    if(!timeStr) return '--:--';
+    let iso = timeStr.includes('T') ? timeStr : `${dateStr}T${timeStr}:00Z`;
+    let dt = new Date(iso);
+    return dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+  }catch{ return timeStr||'--:--'; }
+};
+
+function buildTabs(){
+  const c=document.getElementById('dayTabs');
+  const today=new Date();
+  const days=[];
+  for(let i=-2;i<=3;i++){ let d=new Date(); d.setDate(today.getDate()+i); days.push(d); }
+  let html=days.map(d=>{
+    const iso=d.toISOString().split('T')[0];
+    let label= iso===new Date().toISOString().split('T')[0] ? 'Today' : d.toLocaleDateString('en-US',{weekday:'short'})===new Date(Date.now()-86400000).toLocaleDateString('en-US',{weekday:'short'}) && iso!==new Date().toISOString().split('T')[0] ? '' : '';
+    // Simpler labels
+    const diff = Math.round((d - today)/86400000);
+    if(diff===0) label='Today'; else if(diff===-1) label='Yesterday'; else if(diff===1) label='Tomorrow'; else label=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const active= iso===currentDate ? 'active' : '';
+    return `<button class="tab ${active}" onclick="pickDate('${iso}')">${label}</button>`;
+  }).join('');
+  html+=`<select class="tab-drop" onchange="pickDate(this.value)"><option>More ▼</option>${(() => { let o=''; for(let i=-7;i<=7;i++){ let d=new Date(); d.setDate(today.getDate()+i); let iso=d.toISOString().split('T')[0]; o+=`<option value="${iso}">${iso}</option>`;} return o;})()}</select>`;
+  c.innerHTML=html;
 }
-load();
-setInterval(load,30000);
+
+function pickDate(iso){
+  currentDate=iso;
+  document.getElementById('dateHead').innerText=fmtDate(iso);
+  buildTabs();
+  loadMatches(iso);
+}
+
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
+  render();
+}
+
+function getStatus(m){
+  const s=m.status||m.state||'';
+  if(typeof s==='object') return (s.type||s.name||s.state||'').toString().toLowerCase();
+  return s.toString().toLowerCase();
+}
+
+async function loadMatches(date){
+  currentDate=date||currentDate;
+  const list=document.getElementById('list');
+  list.innerHTML='<div style="text-align:center;padding:40px;color:#8b8f99">Loading real matches for '+date+'...</div>';
+  try{
+    const r=await fetch(`/api/matches?date=${currentDate}`);
+    const d=await r.json();
+    allMatches = d.data?.matches || d.data || d.matches || [];
+    render();
+  }catch(e){ list.innerHTML='Error: '+e.message; }
+}
+
+function render(){
+  const q=document.getElementById('q').value.toLowerCase();
+  let filtered=allMatches.filter(m=>{
+    const st=getStatus(m);
+    if(currentFilter==='live' && !(st.includes('live')||st.includes('inplay')||st.includes('1h')||st.includes('2h'))) return false;
+    if(currentFilter==='finished' && !(st.includes('finish')||st.includes('ft')||st.includes('ended')||st.includes('full'))) return false;
+    if(currentFilter==='scheduled' && !(st.includes('sched')||st.includes('not')||st.includes('ns')||st.includes('00:00')||st===''||st==='null')) return false;
+    if(q){
+      const txt=`${m.league?.name||''} ${m.home?.name||''} ${m.away?.name||''} ${m.league?.country||''}`.toLowerCase();
+      if(!txt.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Group by league
+  const groups={};
+  filtered.forEach(m=>{
+    const key=`${m.league?.country||m.country||'WORLD'}: ${m.league?.name||'League'}`;
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(m);
+  });
+
+  const list=document.getElementById('list');
+  if(!filtered.length){ list.innerHTML='<div style="text-align:center;padding:40px;color:#8b8f99">No matches for filter.</div>'; return; }
+
+  list.innerHTML=Object.entries(groups).map(([league, matches])=>`
+    <div class="league-head" onclick="toggleLeague(this)"><b>${league.toUpperCase()}</b><span>Standings</span></div>
+    <div class="league-matches">
+    ${matches.map(m=>{
+      const st=getStatus(m);
+      const isLive=st.includes('live')||st.includes('inplay');
+      const time=fmtEuro(m.kickoff||m.time||m.start_time, currentDate);
+      const home=m.home?.name||m.home_team?.name||m.home||'Home';
+      const away=m.away?.name||m.away_team?.name||m.away||'Away';
+      const sc=m.scores||m.score||{};
+      const sh=sc.home??m.home_score??'-';
+      const sa=sc.away??m.away_score??'-';
+      const showScore = (sh!=='-'||sa!=='-') ? `${sh} - ${sa}` : '-';
+      return `<div class="match-row" onclick="openMatch('${m.id||m.match_id}')">
+        <div class="time">${isLive?`<span class="dot"></span>`:''}${time}</div>
+        <div class="teams"><div>${home}</div><div>${away}</div></div>
+        <div class="score">${showScore}</div>
+      </div>`;
+    }).join('')}
+    </div>
+  `).join('');
+}
+
+function toggleLeague(el){ const n=el.nextElementSibling; n.style.display=n.style.display==='none'?'block':'block'; if(n.style.display==='none') n.style.display='block'; else n.style.display=n.style.display==='none'? 'block':'none'; // simple
+ // toggle
+ if(n.style.display==='none') n.style.display='block'; else if(n.getAttribute('data-h')==='1'){n.style.display='none'; n.setAttribute('data-h','0')} else { if(n.style.display!=='none'){n.style.display='none'; n.setAttribute('data-h','1')} }
+ // actually just hide/show
+}
+
+function openMatch(id){
+  const m=allMatches.find(x=> (x.id||x.match_id)==id);
+  if(!m) return;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('mTitle').innerText=`${m.home?.name||''} vs ${m.away?.name||''}`;
+  document.getElementById('mBody').innerHTML=`
+    <p><b>League:</b> ${m.league?.name} - ${m.league?.country||''}</p>
+    <p><b>Date:</b> ${currentDate} • <b>Time (Europe/London):</b> ${fmtEuro(m.kickoff||m.time, currentDate)}</p>
+    <p><b>Status:</b> ${JSON.stringify(m.status||'')}</p>
+    <p><b>Score:</b> ${JSON.stringify(m.scores||m.score||'0-0')}</p>
+    <p style="margin-top:20px"><b>Match ID:</b> ${id}</p>
+    <button style="margin-top:20px;width:100%;padding:12px;background:#1fd464;color:#000;border:none;border-radius:10px;font-weight:bold">View More Details</button>
+  `;
+}
+
+buildTabs(); loadMatches(currentDate);
+setInterval(()=>loadMatches(currentDate), 60000);
 </script>
 </body>
 </html>
