@@ -3,48 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore - Real</title>
+<title>LiveScore REAL</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0f1419;color:#fff;font-family:system-ui;padding:12px}
-.header{background:#1a2332;padding:14px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:12px}
+.header{background:#1a2332;padding:14px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:12px;position:sticky;top:0}
 .live-dot{width:10px;height:10px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 1s infinite}
-@keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+@keyframes pulse{50%{opacity:.3}}
 .match{background:#1e293b;padding:14px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .score{color:#00ff88;font-weight:bold;font-size:18px}
-.league{font-size:11px;color:#94a3b8;margin-bottom:4px}
+.league{font-size:11px;color:#94a3b8;margin-bottom:3px}
 .status{font-size:11px;background:#00ff88;color:#000;padding:3px 6px;border-radius:4px}
-#loading{text-align:center;padding:40px;color:#94a3b8}
 </style>
 </head>
 <body>
-<div class="header"><b>⚽ LIVESCORE</b><span><span class="live-dot"></span> REAL LIVE</span></div>
-<div id="loading">Loading REAL matches from API... ⏳</div>
-<div id="list"></div>
+<div class="header"><b>⚽ LIVESCORE</b><span><span class="live-dot"></span> REAL LIVE (<span id="count">-</span>)</span></div>
+<div id="list" style="text-align:center;padding:30px;">Loading REAL matches...</div>
 <script>
 async function load(){
-  const loading=document.getElementById('loading');
   const list=document.getElementById('list');
+  const count=document.getElementById('count');
   try{
     const r=await fetch('/api/matches');
     const d=await r.json();
-    console.log(d);
-    const ms=d.matches||d.data||[];
+    const ms = d.data?.matches || d.data || d.matches || [];
+    count.innerText = ms.length;
     if(!ms.length){
-      loading.innerHTML='No matches today.<br><small>'+JSON.stringify(d).substring(0,300)+'</small>';
+      list.innerHTML = 'No matches at this exact time. Try again later.';
       return;
     }
-    loading.style.display='none';
     list.innerHTML=ms.map(m=>`
       <div class="match">
-        <div><div class="league">${m.league?.name||m.competition||'Match'}</div>
-        <div>${m.home?.name||m.home_team?.name||m.home} vs ${m.away?.name||m.away_team?.name||m.away}</div></div>
-        <div style="text-align:right"><div class="score">${m.score?.home??m.home_score??0} - ${m.score?.away??m.away_score??0}</div>
-        <div class="status">${m.status||'LIVE'}</div></div>
+        <div>
+          <div class="league">${m.league?.name||'League'} • ${m.kickoff||''} • ${m.status||''}</div>
+          <div><b>${m.home?.name||m.home_team||'Home'}</b> vs <b>${m.away?.name||m.away_team||'Away'}</b></div>
+        </div>
+        <div style="text-align:right">
+          <div class="score">${m.score?.home??m.home_score??m.scores?.home??'-'} - ${m.score?.away??m.away_score??m.scores?.away??'-'}</div>
+          <div class="status">${m.status||'LIVE'}</div>
+        </div>
       </div>`).join('');
-  }catch(e){loading.innerHTML='Error: '+e.message+'<br>Check /api/matches';}
+  }catch(e){
+    list.innerHTML='Error: '+e.message;
+  }
 }
-load(); setInterval(load,30000);
+load();
+setInterval(load,30000);
 </script>
 </body>
 </html>
