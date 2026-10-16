@@ -1,72 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LiveScore - Live Football Scores</title>
+<title>LiveScore - Real</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto}
-body{background:#0f1419;color:#fff;min-height:100vh}
-.header{background:#1a232e;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;border-bottom:1px solid #2a3441}
-.logo{font-size:22px;font-weight:900;color:#00d084} .logo span{color:#fff}
-.live-dot{display:inline-block;width:8px;height:8px;background:#ff3b30;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f1419;color:#fff;font-family:system-ui;padding:12px}
+.header{background:#1a2332;padding:14px;border-radius:10px;display:flex;justify-content:space-between;margin-bottom:12px}
+.live-dot{width:10px;height:10px;background:#00ff88;border-radius:50%;display:inline-block;animation:pulse 1s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
-.tabs{display:flex;gap:8px;padding:12px 16px;background:#1a232e;overflow-x:auto}
-.tab{padding:8px 16px;border-radius:20px;background:#2a3441;color:#8b9bb0;border:none;font-weight:600;white-space:nowrap;cursor:pointer}
-.tab.active{background:#00d084;color:#000}
-.league{background:#1a232e;margin:12px;border-radius:12px;overflow:hidden;border:1px solid #2a3441}
-.league-header{padding:12px 16px;background:#222e3c;display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
-.match{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #2a3441}
-.match:hover{background:#222e3c}
-.team{flex:1;display:flex;align-items:center;gap:10px;font-size:14px}
-.score-box{display:flex;align-items:center;gap:12px}
-.score{font-weight:800;font-size:18px;min-width:50px;text-align:center;background:#2a3441;padding:6px 12px;border-radius:8px}
-.time{font-size:12px;color:#00d084;font-weight:700;min-width:45px;text-align:center}
-.status-live{color:#ff3b30;animation:pulse 1.5s infinite}
-.footer{text-align:center;padding:20px;color:#5a6a80;font-size:12px}
-.badge{font-size:10px;padding:2px 6px;border-radius:4px;background:#ff3b30;color:#fff;margin-left:8px}
+.match{background:#1e293b;padding:14px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.score{color:#00ff88;font-weight:bold;font-size:18px}
+.league{font-size:11px;color:#94a3b8;margin-bottom:4px}
+.status{font-size:11px;background:#00ff88;color:#000;padding:3px 6px;border-radius:4px}
+#loading{text-align:center;padding:40px;color:#94a3b8}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo">LIVE<span>SCORE</span></div>
-<div style="font-size:12px"><span class="live-dot"></span>LIVE</div>
-</div>
-<div class="tabs">
-<button class="tab active" onclick="filterGames('live')">🔴 Live</button>
-<button class="tab" onclick="filterGames('today')">Today</button>
-<button class="tab" onclick="filterGames('all')">All Matches</button>
-<button class="tab" onclick="filterGames('PL')">Premier League</button>
-<button class="tab" onclick="filterGames('LALIGA')">La Liga</button>
-</div>
-<div id="matches"></div>
-<div class="footer">LiveScore • Auto refresh every 30s • Built for Cloudflare Pages</div>
+<div class="header"><b>⚽ LIVESCORE</b><span><span class="live-dot"></span> REAL LIVE</span></div>
+<div id="loading">Loading REAL matches from API... ⏳</div>
+<div id="list"></div>
 <script>
-const games=[
-{league:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League",id:"PL",home:"Man City",away:"Arsenal",hs:2,as:1,time:"78'",live:true},
-{league:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League",id:"PL",home:"Liverpool",away:"Chelsea",hs:1,as:1,time:"62'",live:true},
-{league:"🇪🇸 La Liga",id:"LALIGA",home:"Real Madrid",away:"Barcelona",hs:0,as:0,time:"15:00",live:false},
-{league:"🇪🇸 La Liga",id:"LALIGA",home:"Atletico",away:"Sevilla",hs:3,as:0,time:"FT",live:false},
-{league:"🇮🇹 Serie A",id:"SERIE",home:"Inter",away:"AC Milan",hs:2,as:2,time:"54'",live:true},
-{league:"🇩🇪 Bundesliga",id:"BUND",home:"Bayern",away:"Dortmund",hs:1,as:0,time:"19:30",live:false},
-{league:"🇫🇷 Ligue 1",id:"LIGUE",home:"PSG",away:"Marseille",hs:0,as:1,time:"89'",live:true},
-{league:"🌍 Champions League",id:"UCL",home:"Man Utd",away:"Bayern",hs:0,as:0,time:"21:00",live:false},
-];
-let filter='live';
-function render(){
-const container=document.getElementById('matches');container.innerHTML='';
-let filtered=filter==='live'?games.filter(g=>g.live):filter==='today'?games:filter==='all'?games:games.filter(g=>g.id===filter);
-const byLeague={};filtered.forEach(g=>{if(!byLeague[g.league])byLeague[g.league]=[];byLeague[g.league].push(g);});
-for(const league in byLeague){
-let html=`<div class="league"><div class="league-header">${league}</div>`;
-byLeague[league].forEach(m=>{
-html+=`<div class="match"><div><div class="team">🔵 ${m.home}</div><div class="team" style="margin-top:6px">🔴 ${m.away}</div></div><div class="score-box"><div><div class="score">${m.hs} - ${m.as}</div><div class="time ${m.live?'status-live':''}">${m.live?m.time+' <span class=badge>LIVE</span>':m.time}</div></div></div></div>`;
-});
-html+='</div>';container.innerHTML+=html;
+async function load(){
+  const loading=document.getElementById('loading');
+  const list=document.getElementById('list');
+  try{
+    const r=await fetch('/api/matches');
+    const d=await r.json();
+    console.log(d);
+    const ms=d.matches||d.data||[];
+    if(!ms.length){
+      loading.innerHTML='No matches today.<br><small>'+JSON.stringify(d).substring(0,300)+'</small>';
+      return;
+    }
+    loading.style.display='none';
+    list.innerHTML=ms.map(m=>`
+      <div class="match">
+        <div><div class="league">${m.league?.name||m.competition||'Match'}</div>
+        <div>${m.home?.name||m.home_team?.name||m.home} vs ${m.away?.name||m.away_team?.name||m.away}</div></div>
+        <div style="text-align:right"><div class="score">${m.score?.home??m.home_score??0} - ${m.score?.away??m.away_score??0}</div>
+        <div class="status">${m.status||'LIVE'}</div></div>
+      </div>`).join('');
+  }catch(e){loading.innerHTML='Error: '+e.message+'<br>Check /api/matches';}
 }
-}
-function filterGames(f){filter=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');render();}
-render();setInterval(()=>{games.forEach(g=>{if(g.live && Math.random()>0.7){if(Math.random()>0.5)g.hs++;else g.as++;}});render();},15000);
+load(); setInterval(load,30000);
 </script>
 </body>
 </html>
