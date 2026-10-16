@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>LiveScore France Time</title>
+<title>LiveScore France</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{background:#0e1117;color:#fff;font-family:system-ui}
 .top{padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0e1117;z-index:10;border-bottom:1px solid #1f242f}
@@ -24,12 +24,12 @@
 .league-head span{font-size:11px;color:#1fd464;font-weight:600}
 .match-row{display:flex;align-items:center;padding:12px 16px;background:#0e1117;border-bottom:1px solid #1a1f2b;cursor:pointer}
 .match-row:active{background:#1a1f2b}
-.time{width:56px;font-size:12px;color:#8b8f99;font-weight:700}
+.time{width:62px;font-size:12px;color:#8b8f99;font-weight:700}
 .time.live{color:#ff3b30}
 .teams{flex:1;font-size:14px;line-height:20px}
-.score{width:60px;text-align:right;font-weight:800;font-size:14px}
+.score{width:70px;text-align:right;font-weight:800;font-size:14px}
 .score.live{color:#1fd464}
-.score.finished{color:#fff}
+.score.fin{color:#fff}
 .dot{width:6px;height:6px;background:#ff3b30;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}
 @keyframes blink{50%{opacity:0}}
 .modal{position:fixed;inset:0;background:#0e1117;z-index:100;padding:16px;overflow:auto;display:none}
@@ -39,7 +39,7 @@
 <body>
 <div class="top">
 <span onclick="history.back()" style="font-size:22px;cursor:pointer">←</span>
-<div><h1 id="dateHead">Oct 17, 2026</h1><small id="timeHead">France Time - Europe/Paris</small></div>
+<div><h1 id="dateHead">Today</h1><small>France Time - Europe/Paris (Flashscore time)</small></div>
 </div>
 <div class="tabs" id="dayTabs"></div>
 <div class="filters">
@@ -58,72 +58,60 @@
 
 <script>
 let allMatches=[], currentFilter='all', currentDate=new Date().toISOString().split('T')[0];
-const TOP = ['Champions League','Premier League','La Liga','Serie A','Bundesliga','Ligue 1','Europa League','ENGLAND:','SPAIN:','FRANCE:','ITALY:','GERMANY:','NETHERLANDS:'];
-function getPrio(name){ for(let i=0;i<TOP.length;i++) if(name.toUpperCase().includes(TOP[i].toUpperCase())) return i; return 999; }
+const TOP=['Champions League','Premier League','La Liga','Serie A','Bundesliga','Ligue 1','Europa League','ENGLAND','SPAIN','FRANCE','ITALY','GERMANY'];
+function getPrio(n){for(let i=0;i<TOP.length;i++) if(n.toUpperCase().includes(TOP[i].toUpperCase())) return i; return 999;}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 
-// *** FRANCE TIME CORRECT - EUROPE/PARIS ***
+// FRANCE TIME - CONVERT UTC TO EUROPE/PARIS
 function toFranceTime(timeStr, dateStr){
   try{
     if(!timeStr) return '--:--';
-    // Clean time - can be "16:15" or "16:15:00" or ISO
-    let t = timeStr.toString().split('T').pop().substring(0,5);
+    let t=timeStr.toString().split('T').pop().substring(0,5);
     if(!t.includes(':')) return timeStr;
-    let [hh,mm] = t.split(':').map(Number);
-    // Build UTC date then convert to France
-    let utcDate = new Date(`${dateStr}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00Z`);
-    // Format in Europe/Paris (France time) - this automatically handles +1 or +2
-    let fr = new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris',hour12:false}).format(utcDate);
+    let [hh,mm]=t.split(':').map(Number);
+    let utc=new Date(`${dateStr}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00Z`);
+    let fr=new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris',hour12:false}).format(utc);
     return fr;
-  }catch(e){
-    // Fallback: just add 1 hour to match Flashscore
-    let [h,m]=timeStr.split(':').map(Number); if(isNaN(h)) return timeStr;
-    h=(h+1)%24; return `${String(h).padStart(2,'0')}:${String(m||0).padStart(2,'0')}`;
-  }
+  }catch{ let [h,m]=timeStr.split(':').map(Number); h=(h+1)%24; return `${String(h).padStart(2,'0')}:${String(m||0).padStart(2,'0')}`; }
 }
-
-function fmtDate(d){ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
 function buildTabs(){
   const c=document.getElementById('dayTabs'); const today=new Date(); let html='';
-  for(let i=-2;i<=3;i++){ let d=new Date(); d.setDate(today.getDate()+i); let iso=d.toISOString().split('T')[0]; let diff=Math.round((d-today)/86400000); let label=diff===0?'Today':diff===-1?'Yesterday':diff===1?'Tomorrow':d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); html+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`; }
+  for(let i=-3;i<=3;i++){let d=new Date(); d.setDate(today.getDate()+i); let iso=d.toISOString().split('T')[0]; let diff=Math.round((d-today)/86400000); let label=diff===0?'Today':diff===-1?'Yesterday':diff===1?'Tomorrow':d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); html+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;}
   html+=`<select class="tab-drop" onchange="pickDate(this.value)"><option>More ▼</option>${(()=>{let o='';for(let i=-7;i<=7;i++){let d=new Date(); d.setDate(today.getDate()+i); let iso=d.toISOString().split('T')[0]; o+=`<option value="${iso}">${iso}</option>`;}return o;})()}</select>`;
   c.innerHTML=html;
 }
-function pickDate(iso){ currentDate=iso; document.getElementById('dateHead').innerText=fmtDate(iso); buildTabs(); loadMatches(iso); }
-function setFilter(f){ currentFilter=f; document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f)); render(); }
-function getStatus(m){ const s=m.status||m.state||m.status_type||m.match_status||''; if(typeof s==='object') return (s.type||s.name||s.state||'').toLowerCase(); return s.toString().toLowerCase(); }
+function pickDate(iso){currentDate=iso; document.getElementById('dateHead').innerText=fmtDate(iso); buildTabs(); loadMatches(iso);}
+function setFilter(f){currentFilter=f; document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f)); render();}
+function getStatus(m){const s=m.status||''; return s.toString().toLowerCase();}
 
-// *** SHOW REAL RESULTS FOR ANY DAY ***
-function getScore(m){
-  // Check all possible fields your API can return
-  try{
-    // Direct string
-    if(typeof m.result==='string' && m.result.includes('-')) return m.result;
-    if(typeof m.score==='string' && m.score.includes('-')) return m.score;
-    
-    const sc = m.scores || m.score || m.result || m.goals || {};
-    if(typeof sc==='string') return sc;
-    
-    // Object with home/away
-    let h = sc.home ?? sc.home_score ?? m.home_score ?? m.homeScore ?? sc.homeScore ?? m.home_goals ?? m.goals_home ?? null;
-    let a = sc.away ?? sc.away_score ?? m.away_score ?? m.awayScore ?? sc.awayScore ?? m.away_goals ?? m.goals_away ?? null;
-    
-    // Sometimes scores inside score.home / score.away
-    if(h===null && m.score){
-      h = m.score.home ?? m.score.home_score ?? null;
-      a = m.score.away ?? m.score.away_score ?? null;
-    }
-    // Full time
-    if(h===null && m.full_time){
-      h = m.full_time.home; a = m.full_time.away;
-    }
-    // If we found both, return them even if 0-0
-    if(h!==null && a!==null && (h!=='' || a!=='')){
-      return `${h} - ${a}`;
-    }
-    // For finished matches, if still -, try to get from status
-    if(m.ft_score) return m.ft_score;
-  }catch(e){}
-  return '-';
+// CORRECT SCORE LOGIC - THIS FIXES YOUR RESULT ISSUE
+function getScoreAndMinute(m){
+  const st=getStatus(m);
+  const sc=m.score||{};
+  // For scheduled - show -
+  if(st==='scheduled' || st==='notstarted' || st==='ns'){
+    return {score:'-', minute:''};
+  }
+  // For live and finished - show real score
+  let h = sc.home ?? m.home_score ?? null;
+  let a = sc.away ?? m.away_score ?? null;
+  let scoreText='-';
+  if(h!==null && a!==null){ scoreText=`${h} - ${a}`; }
+  
+  // Live minute - check many fields
+  let minute='';
+  if(st==='live' || st==='inplay'){
+    minute = m.minute || m.min || m.time || m.match_minute || m.live_minute || '';
+    if(m.status && typeof m.status==='object' && m.status.minute) minute=m.status.minute;
+    // If no minute from API, show LIVE
+    if(!minute) minute='LIVE';
+    else if(!isNaN(minute)) minute=minute+"'";
+  }else if(st==='finished' || st==='ft' || st==='full'){
+    minute='FT';
+  }else if(st==='ht'){
+    minute='HT';
+  }
+  return {score:scoreText, minute:minute};
 }
 
 async function loadMatches(date){
@@ -133,7 +121,6 @@ async function loadMatches(date){
     const r=await fetch(`/api/matches?date=${date}`);
     const d=await r.json();
     allMatches=d.data?.matches||d.data||d.matches||[];
-    console.log('Loaded', allMatches.length, 'first sample:', allMatches[0]);
     render();
   }catch(e){ list.innerHTML='Error: '+e.message; }
 }
@@ -142,11 +129,11 @@ function render(){
   const q=document.getElementById('q').value.toLowerCase();
   let filtered=allMatches.filter(m=>{
     const st=getStatus(m);
-    if(currentFilter==='live' && !(st.includes('live')||st.includes('inplay')||st.includes('1h')||st.includes('2h')||st.includes('ht'))) return false;
-    if(currentFilter==='finished' && !(st.includes('finish')||st.includes('ft')||st.includes('ended')||st.includes('full')||st.includes('aet')||st.includes('pen')||st.includes('after'))) return false;
-    if(currentFilter==='scheduled' && !(st.includes('sched')||st.includes('ns')||st===''||st.includes('not')||st.includes('pre'))) return false;
+    if(currentFilter==='live' && !st.includes('live')) return false;
+    if(currentFilter==='finished' && !st.includes('finish') && st!=='ft') return false;
+    if(currentFilter==='scheduled' && st!=='scheduled' && st!=='ns' && st!=='') return false;
     if(q){
-      const txt=`${m.league?.name||''} ${m.home?.name||''} ${m.away?.name||''} ${m.league?.country||''} ${m.country||''}`.toLowerCase();
+      const txt=`${m.league?.name||''} ${m.home?.name||''} ${m.away?.name||''} ${m.league?.country||''}`.toLowerCase();
       if(!txt.includes(q)) return false;
     }
     return true;
@@ -160,7 +147,6 @@ function render(){
     if(!groups[key]) groups[key]={country,lname,raw:key,matches:[]};
     groups[key].matches.push(m);
   });
-
   let sorted=Object.values(groups).sort((a,b)=>{
     const pa=getPrio(a.raw), pb=getPrio(b.raw);
     if(pa!==pb) return pa-pb;
@@ -168,23 +154,24 @@ function render(){
   });
 
   const list=document.getElementById('list');
-  if(!filtered.length){ list.innerHTML='<div style="text-align:center;padding:40px;color:#8b8f99">No matches for this filter on '+currentDate+'</div>'; return; }
+  if(!filtered.length){ list.innerHTML=`<div style="text-align:center;padding:40px;color:#8b8f99">No matches for ${currentFilter} on ${currentDate}<br><br>Tip: Tap Yesterday - you go see Finished results with scores like 2-1</div>`; return; }
 
   list.innerHTML=sorted.map(g=>`
     <div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span>: <span class="lname">${g.lname.toUpperCase()}</span></div><span>Standings</span></div>
     <div>
     ${g.matches.map(m=>{
-      const st=getStatus(m); const isLive=st.includes('live')||st.includes('inplay');
-      const isFin=st.includes('finish')||st.includes('ft')||st.includes('ended')||st.includes('full');
-      const time=toFranceTime(m.kickoff||m.time||m.start_time||m.match_time, currentDate);
+      const st=getStatus(m);
+      const isLive=st.includes('live');
+      const {score, minute}=getScoreAndMinute(m);
+      const time=toFranceTime(m.kickoff||m.time||m.start_time, currentDate);
       const home=m.home?.name||m.home_team?.name||m.home||'Home';
       const away=m.away?.name||m.away_team?.name||m.away||'Away';
-      const score=getScore(m);
-      const showScore = score!=='-' ? score : '-';
+      // Show minute for live, time for scheduled, FT for finished
+      let leftText = isLive ? (minute||'LIVE') : (st==='finished'||st==='ft' ? 'FT' : time);
       return `<div class="match-row" onclick="openMatch('${m.id||m.match_id}')">
-        <div class="time ${isLive?'live':''}">${isLive?'<span class="dot"></span>':''}${time}</div>
+        <div class="time ${isLive?'live':''}">${isLive?'<span class="dot"></span>':''}${leftText}</div>
         <div class="teams"><div>${home}</div><div>${away}</div></div>
-        <div class="score ${isLive?'live':''} ${isFin?'finished':''}">${showScore}</div>
+        <div class="score ${isLive?'live':''} ${st.includes('finish')||st==='ft'?'fin':''}">${score}</div>
       </div>`;
     }).join('')}
     </div>
@@ -194,8 +181,9 @@ function render(){
 function openMatch(id){
   const m=allMatches.find(x=>(x.id||x.match_id)==id); if(!m) return;
   document.getElementById('modal').classList.add('show');
+  const {score, minute}=getScoreAndMinute(m);
   document.getElementById('mTitle').innerText=`${m.home?.name||''} vs ${m.away?.name||''}`;
-  document.getElementById('mBody').innerHTML=`<p><b>League:</b> ${m.league?.name} (${m.league?.country})</p><p><b>Date:</b> ${currentDate}</p><p><b>France Time:</b> ${toFranceTime(m.kickoff||m.time,currentDate)} (Europe/Paris)</p><p><b>Status:</b> ${getStatus(m)}</p><p><b>Score:</b> ${getScore(m)}</p><p style="margin-top:10px;color:#8b8f99">Match go show result when finished. For Today, Future matches show -, Finished show like 2-1</p>`;
+  document.getElementById('mBody').innerHTML=`<p><b>League:</b> ${m.league?.name} (${m.league?.country})</p><p><b>Date:</b> ${currentDate}</p><p><b>France Time:</b> ${toFranceTime(m.kickoff||m.time,currentDate)} (Europe/Paris)</p><p><b>Status:</b> ${getStatus(m)} ${minute?'- '+minute:''}</p><p><b>Score:</b> ${score}</p><p style="margin-top:15px;color:#8b8f99">Scheduled = shows France time (like 17:15). Live = shows minute like 67' + score. Finished = shows FT + final score like 2-1. This matches Flashscore.</p>`;
 }
 
 buildTabs(); loadMatches(currentDate);
