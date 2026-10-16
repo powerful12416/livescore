@@ -1,73 +1,31 @@
 export async function onRequest(context) {
-  // Live matches API - returns JSON
-  const matches = [
-    {
-      id: 1,
-      league: "Premier League",
-      home: "Man City",
-      away: "Arsenal",
-      homeScore: 2,
-      awayScore: 1,
-      minute: "78'",
-      status: "LIVE",
-      live: true
-    },
-    {
-      id: 2,
-      league: "Premier League",
-      home: "Liverpool",
-      away: "Chelsea",
-      homeScore: 1,
-      awayScore: 1,
-      minute: "62'",
-      status: "LIVE",
-      live: true
-    },
-    {
-      id: 3,
-      league: "La Liga",
-      home: "Real Madrid",
-      away: "Barcelona",
-      homeScore: 0,
-      awayScore: 0,
-      minute: "15:00",
-      status: "SCHEDULED",
-      live: false
-    },
-    {
-      id: 4,
-      league: "Serie A",
-      home: "Inter",
-      away: "AC Milan",
-      homeScore: 2,
-      awayScore: 2,
-      minute: "54'",
-      status: "LIVE",
-      live: true
-    },
-    {
-      id: 5,
-      league: "Bundesliga",
-      home: "Bayern Munich",
-      away: "Dortmund",
-      homeScore: 1,
-      awayScore: 0,
-      minute: "19:30",
-      status: "SCHEDULED",
-      live: false
-    }
-  ];
+  const apiKey = context.env.FOOTBALL_API_KEY;
+  
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "FOOTBALL_API_KEY not set in Cloudflare" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 
-  return new Response(JSON.stringify({
-    success: true,
-    count: matches.length,
-    timestamp: new Date().toISOString(),
-    matches: matches
-  }), {
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "public, max-age=30"
-    }
-  });
+  const today = new Date().toISOString().split('T')[0];
+  const apiUrl = `https://live-football-api.com/api/v1/matches?api_key=${apiKey}&date=${today}&lang=en`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    
+    return new Response(JSON.stringify(data), {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=30"
+      }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ status: "error", message: err.message, matches: [] }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 }
