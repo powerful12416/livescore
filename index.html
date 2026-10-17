@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flashscore Proper Top</title><style>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Top 6 Exact</title><style>
 *{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial}
 .top{background:#000;padding:14px 16px;border-bottom:1px solid #222;position:sticky;top:0;z-index:20}
 .tabs{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;position:sticky;top:48px;z-index:15;border-bottom:1px solid #1a1a1a}.tabs::-webkit-scrollbar{display:none}
@@ -10,7 +10,7 @@
 .match-row{display:flex;align-items:center;padding:10px 12px;background:#000;border-bottom:1px solid #141414}
 .time{width:48px;font-size:12px;color:#888;font-weight:700}.time.live{color:#ff3d3d}.teams{flex:1;font-size:13px;line-height:17px}.score{width:55px;text-align:right;font-weight:800}.score.live{color:#00d26a}.dot{width:6px;height:6px;background:#ff3d3d;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}@keyframes blink{50%{opacity:0}}
 </style></head><body>
-<div class="top"><b id="dateHead"></b> <small style="color:#00d26a">England France Germany Italy Spain Netherlands Top + A-Z</small></div>
+<div class="top"><b id="dateHead"></b> <small style="color:#00d26a">1.Eng Prem 2.Fra L1 3.Ger BL 4.Ita SA 5.Spa LL 6.Ned Ere + A-Z</small></div>
 <div class="tabs" id="dayTabs"></div>
 <div class="filters"><button class="f active" data-f="all" onclick="setFilter('all')">All</button><button class="f" data-f="live" onclick="setFilter('live')">Live</button><button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button><button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button><button class="f" onclick="loadMatches(currentDate)">↻</button></div>
 <div class="search"><span>🔍</span><input id="q" placeholder="Search country, league, team..." oninput="render()"></div>
@@ -23,27 +23,27 @@ function pickDate(iso){currentDate=iso;buildTabs();loadMatches(iso);}function se
 function isValid(v){if(v===null||v===undefined) return false;const s=String(v).trim().toLowerCase();return s!==""&&s!=="null"&&s!=="undefined";}
 function toFranceTime(t){if(!t||!t.includes(':')) return t||'00:00';const p=t.split(':');let h=parseInt(p[0],10),m=parseInt(p[1],10);if(isNaN(h)) return t;h=(h+2)%24;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
 function getScore(m){const st=m.status||{};const disp=(st.display||'').toString();const live=st.is_live===true;const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT';const sched=!live&&!fin;let hs=m.home?.score,as=m.away?.score;if(!isValid(hs))hs=null;if(!isValid(as))as=null;if(isValid(hs)&&isValid(as)){if(fin) return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};if(live) return {s:`${hs} - ${as}`,t:disp||'LIVE',live:true,fin:false,sched:false,ok:true};return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};}if(sched){return {s:'-',t:toFranceTime(m.kickoff||''),live:false,fin:false,sched:true,ok:true};}return {s:'-',t:disp,live,fin,ok:false};}
-function getLeague(m){
-  const L=m.League||m.league||{};
-  let country=(L.country||L.country_name||m.country||'').toString().trim()||'WORLD';
-  let name=(L.name||L.league_name||m.competition||m.tournament||'').toString().trim()||'LEAGUE';
-  // Keep generic but will arrange at bottom
-  const isGeneric=country.toUpperCase()==='WORLD' && name.toUpperCase()==='LEAGUE';
-  return {country,name,isGeneric,key:`${country.toUpperCase()}: ${name.toUpperCase()}`};
+function getLeague(m){const L=m.League||{};let c=(L.country||'').toString().trim()||'WORLD';let n=(L.name||'').toString().trim()||'LEAGUE';return {country:c,name:n,key:`${c.toUpperCase()}: ${n.toUpperCase()}`};}
+// EXACT YOUR REQUEST: 1 England PL, 2 France L1, 3 Germany BL, 4 Italy SA, 5 Spain LL, 6 Netherlands Ere, then A-Z
+function getExactPriority(key){
+  const k=key.toUpperCase();
+  if(k==='ENGLAND: PREMIER LEAGUE') return 1;
+  if(k==='FRANCE: LIGUE 1') return 2;
+  if(k==='GERMANY: BUNDESLIGA') return 3;
+  if(k==='ITALY: SERIE A') return 4;
+  if(k==='SPAIN: LALIGA' || k==='SPAIN: LA LIGA' || k==='SPAIN: LALIGA EA SPORTS') return 5;
+  if(k==='NETHERLANDS: EREDIVISIE') return 6;
+  // For same country but other leagues, put after top 6 but before A-Z
+  if(k.startsWith('ENGLAND:')) return 20;
+  if(k.startsWith('FRANCE:')) return 21;
+  if(k.startsWith('GERMANY:')) return 22;
+  if(k.startsWith('ITALY:')) return 23;
+  if(k.startsWith('SPAIN:')) return 24;
+  if(k.startsWith('NETHERLANDS:')) return 25;
+  if(k==='WORLD: LEAGUE') return 999;
+  return 100; // A-Z group
 }
-// PROPER FLASHSCORE ARRANGEMENT: England, France, Germany, Italy, Spain, Netherlands first, then A-Z for rest
-function getPriority(key){
-  const u=key.toUpperCase();
-  if(u.startsWith('ENGLAND')) return 1;
-  if(u.startsWith('FRANCE')) return 2;
-  if(u.startsWith('GERMANY')) return 3;
-  if(u.startsWith('ITALY')) return 4;
-  if(u.startsWith('SPAIN')) return 5;
-  if(u.startsWith('NETHERLANDS')) return 6;
-  if(u.startsWith('WORLD: LEAGUE')) return 999; // generic at very bottom
-  return 100; // all others will be sorted A-Z after top 6
-}
-async function loadMatches(date){document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#666">Loading ${date}... England France Germany Italy Spain Netherlands Top</div>`;try{const r=await fetch(`/api/matches?date=${date}`);const d=await r.json();allMatches=d.data?.matches||[];render();}catch(e){document.getElementById('list').innerHTML='Error '+e.message;}}
+async function loadMatches(date){document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#666">Loading ${date}... Exact Top 6</div>`;try{const r=await fetch(`/api/matches?date=${date}`);const d=await r.json();allMatches=d.data?.matches||[];render();}catch(e){document.getElementById('list').innerHTML='Error '+e.message;}}
 function render(){
   const q=document.getElementById('q').value.toLowerCase();
   let filt=allMatches.filter(m=>{
@@ -54,14 +54,13 @@ function render(){
     if(q){const L=getLeague(m);const txt=`${L.country} ${L.name} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q))return false;}
     return true;
   });
-  const groups={};filt.forEach(m=>{const L=getLeague(m);const key=L.key;if(!groups[key])groups[key]={country:L.country,name:L.name,key,p:getPriority(key),matches:[]};groups[key].matches.push(m);});
-  // SORT: First by priority (1-6 top), then A-Z for all with same priority 100
+  const groups={};filt.forEach(m=>{const L=getLeague(m);const key=L.key;if(!groups[key])groups[key]={country:L.country,name:L.name,key,p:getExactPriority(key),matches:[]};groups[key].matches.push(m);});
   const sorted=Object.values(groups).sort((a,b)=>{
     if(a.p!==b.p) return a.p-b.p;
-    return a.key.localeCompare(b.key); // A-Z for rest
+    return a.key.localeCompare(b.key);
   });
   const list=document.getElementById('list');if(!filt.length){list.innerHTML=`<div style="text-align:center;padding:30px;color:#666">No matches for ${currentDate}</div>`;return;}
-  list.innerHTML=sorted.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span><span class="sep">: </span><span class="lname">${g.name.toUpperCase()}</span></div><span class="stand">Standings</span></div>${g.matches.map(m=>{const gs=getScore(m);const cls=gs.live?'live':'';return `<div class="match-row"><div class="time ${cls}">${gs.live?'<span class="dot"></span>':''}${gs.t}</div><div class="teams"><div>${m.home?.name||'Home'}</div><div>${m.away?.name||'Away'}</div></div><div class="score ${cls}">${gs.s}</div></div>`;}).join('')}`).join('')+`<div style="text-align:center;padding:12px;color:#444;font-size:10px">Top: England France Germany Italy Spain Netherlands, then A-Z - ${filt.length} matches - France Time</div>`;
+  list.innerHTML=sorted.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span><span class="sep">: </span><span class="lname">${g.name.toUpperCase()}</span></div><span class="stand">Standings</span></div>${g.matches.map(m=>{const gs=getScore(m);const cls=gs.live?'live':'';return `<div class="match-row"><div class="time ${cls}">${gs.live?'<span class="dot"></span>':''}${gs.t}</div><div class="teams"><div>${m.home?.name||'Home'}</div><div>${m.away?.name||'Away'}</div></div><div class="score ${cls}">${gs.s}</div></div>`;}).join('')}`).join('')+`<div style="text-align:center;padding:12px;color:#444;font-size:10px">1 England PL 2 France L1 3 Germany BL 4 Italy SA 5 Spain LL 6 Netherlands Ere, then A-Z - ${filt.length} matches</div>`;
 }
 buildTabs();loadMatches(currentDate);
 </script></body></html>
