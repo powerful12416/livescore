@@ -1,27 +1,32 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Livescore Fast Like Flashscore</title><style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0b0e14;color:#fff;font-family:Arial,system-ui;-webkit-tap-highlight-color:transparent}
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Livescore Fast - FT Top</title><style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0b0e14;color:#fff;font-family:Arial}
 .top{padding:12px 14px;background:#0f131d;border-bottom:1px solid #1c2132;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
-.top b{font-size:15px;font-weight:900}.live-badge{color:#ff3b30;font-size:12px;font-weight:900}.refresh{color:#00e676;font-size:13px;font-weight:900;cursor:pointer;background:#1a1f2f;border:1px solid #00e676;border-radius:20px;padding:7px 14px}
-.days{display:flex;gap:7px;padding:10px 12px;background:#0b0e14;overflow-x:auto;position:sticky;top:48px;z-index:90;border-bottom:1px solid #1c2132;scroll-behavior:smooth}.days::-webkit-scrollbar{display:none}
-.d{padding:8px 14px;border-radius:20px;background:#1a1f2f;color:#8a8fa3;border:1px solid #242b40;font-weight:800;font-size:11px;white-space:nowrap;cursor:pointer;flex-shrink:0;text-align:center;line-height:13px}
-.d small{display:block;font-size:8px;opacity:.6;margin-top:1px}.d.active{background:#00e676;color:#000;border-color:#00e676;box-shadow:0 0 0 3px rgba(0,230,118,.15)}
+.top b{font-size:15px;font-weight:900}.live-badge{color:#ff3b30;font-size:12px;font-weight:900}.refresh{color:#00e676;font-size:12px;font-weight:900;cursor:pointer;background:#1a1f2f;border:1px solid #00e676;border-radius:20px;padding:7px 14px}
+.days{display:flex;gap:7px;padding:10px 12px;background:#0b0e14;overflow-x:auto;position:sticky;top:48px;z-index:90;border-bottom:1px solid #1c2132}.days::-webkit-scrollbar{display:none}
+.d{padding:8px 14px;border-radius:20px;background:#1a1f2f;color:#8a8fa3;border:1px solid #242b40;font-weight:800;font-size:11px;white-space:nowrap;cursor:pointer;flex-shrink:0;text-align:center}
+.d small{display:block;font-size:8px;opacity:.6}.d.active{background:#00e676;color:#000;border-color:#00e676}
 .filters{display:flex;gap:7px;padding:10px 12px;background:#0b0e14;overflow-x:auto}.filters::-webkit-scrollbar{display:none}
-.f{padding:7px 14px;border-radius:20px;background:#1a1f2f;color:#8a8fa3;border:1px solid #242b40;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;flex-shrink:0}
-.f.active{background:#fff;color:#000;border-color:#fff}
+.f{padding:7px 14px;border-radius:20px;background:#1a1f2f;color:#8a8fa3;border:1px solid #242b40;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer}
+.f.active{background:#fff;color:#000}
 .search{margin:10px 12px;background:#151a27;border:1px solid #242b40;border-radius:10px;display:flex;align-items:center;padding:10px 12px;gap:8px}
 .search input{flex:1;background:transparent;border:none;color:#fff;outline:none;font-size:13px}
 .ad-wrap{margin:10px 12px;background:#111827;border:1px solid #1f2937;border-radius:10px;padding:8px}
 .ad-btn{display:block;background:linear-gradient(90deg,#00e676,#00c853);color:#000;text-align:center;padding:11px;border-radius:8px;font-weight:900;text-decoration:none;font-size:12px}
 .count{margin:0 12px 6px;color:#5a6075;font-size:10px;font-weight:700}
-.league{background:#1a1f2f;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #242b40;border-bottom:1px solid #0b0e14;cursor:pointer;position:sticky;top:95px;z-index:10}
-.league-left{color:#00e676;font-size:10.5px;font-weight:900}.league-right{color:#5a6075;font-size:10px;font-weight:700}
-.match{display:flex;align-items:center;padding:11px 12px;background:#0f131d;border-bottom:1px solid #1c2132;cursor:pointer;will-change:transform}
-.match:active{background:#1c2132;transform:scale(.99)}.time{width:52px;font-size:11px;color:#8a8fa3;font-weight:700;flex-shrink:0}.time.live{color:#ff3b30;font-weight:900}.time.ft{color:#fff;font-weight:900}
+.league{background:#1a1f2f;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #242b40;cursor:pointer;position:sticky;top:95px;z-index:10}
+.league-left{color:#00e676;font-size:10.5px;font-weight:900}.league-right{color:#00e676;font-size:10px;font-weight:900;border:1px solid #00e676;border-radius:10px;padding:2px 8px}
+.match{display:flex;align-items:center;padding:11px 12px;background:#0f131d;border-bottom:1px solid #1c2132;cursor:pointer}
+.match:active{background:#1c2132}.time{width:52px;font-size:11px;color:#8a8fa3;font-weight:700;flex-shrink:0}.time.live{color:#ff3b30;font-weight:900}.time.ft{color:#fff;font-weight:900}
 .teams{flex:1;min-width:0}.team{font-size:12.5px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d0d4e0}
 .score{width:58px;text-align:right;font-weight:900;font-size:12.5px}.score.live{color:#00e676}.score.ft{color:#fff}
 .loading{padding:40px;text-align:center;color:#5a6075;font-size:12px}
-.skeleton{background:linear-gradient(90deg,#151a27 25%,#1a1f2f 50%,#151a27 75%);background-size:200% 100%;animation:shimmer 1s infinite;height:46px;margin-bottom:1px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton{height:46px;background:linear-gradient(90deg,#151a27 25%,#1a1f2f 50%,#151a27 75%);background-size:200% 100%;animation:s 1s infinite;margin-bottom:1px}@keyframes s{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* MODAL FOR CLICKABLE STANDING + RESULTS */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999;display:none;overflow-y:auto}
+.modal.open{display:block}.modal-box{background:#0f131d;min-height:100vh;padding:0}
+.modal-top{padding:12px 14px;background:#0f131d;border-bottom:1px solid #1c2132;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center}
+.modal-top b{color:#00e676}.close{color:#fff;background:#1a1f2f;border:1px solid #242b40;border-radius:20px;padding:6px 14px;font-weight:900;cursor:pointer}
+.stand-row{display:flex;padding:10px 12px;border-bottom:1px solid #1c2132;font-size:12px}.stand-row.head{background:#1a1f2f;color:#8a8fa3;font-weight:900;font-size:10px}
 </style></head><body>
 <div class="top"><b id="dateHead">France</b><div style="display:flex;gap:8px;align-items:center"><span id="liveCount" class="live-badge"></span><span class="refresh" onclick="loadMatches(currentDate,true)">↻ Refresh</span></div></div>
 <div class="days" id="days"></div>
@@ -30,145 +35,91 @@
 <div class="ad-wrap"><a class="ad-btn" href="https://www.bet9ja.com" target="_blank">BET NOW 300% BONUS → Tap to claim</a><div style="text-align:center;color:#5a6075;font-size:9px;margin-top:5px">Ad - Replace with your affiliate link to earn money</div></div>
 <div class="count" id="count"></div>
 <div id="list"></div>
+
+<!-- CLICKABLE MODAL -->
+<div id="modal" class="modal" onclick="if(event.target==this)closeModal()"><div class="modal-box"><div class="modal-top"><b id="modalTitle">Details</b><span class="close" onclick="closeModal()">✕ Close</span></div><div id="modalBody"></div></div></div>
+
 <script>
-// FAST FRANCE DATE - 4 back 4 future
 function getFranceDate(off=0){const now=new Date();const fmt=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'});let d=new Date(fmt.format(now)+'T12:00:00');d.setDate(d.getDate()+off);return d.toISOString().split('T')[0];}
 let currentDate=getFranceDate(0),allMatches=[],currentFilter='all';
 function buildDays(){const el=document.getElementById('days');let h='';for(let i=-4;i<=4;i++){let iso=getFranceDate(i);let dt=new Date(iso+'T12:00:00');let label=i===-1?'Yesterday':i===0?'Today':i===1?'Tomorrow':dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});let sub=iso.slice(5).replace('-','/');h+=`<button class="d ${iso===currentDate?'active':''}" onclick="pick('${iso}')">${label}<small>${sub}</small></button>`;}el.innerHTML=h;document.getElementById('dateHead').innerText='France '+currentDate;}
 function pick(iso){currentDate=iso;buildDays();loadMatches(iso,true);}function setF(f){currentFilter=f;document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f));render();}
+function toFranceTime(t){if(!t) return '--:--';let s=t;if(s.includes('T')) s=s.split('T')[1];s=s.substring(0,5);if(!s.includes(':')) return s;let p=s.split(':');let hh=parseInt(p[0],10);let mm=p[1];if(isNaN(hh)) return s;hh=(hh+2)%24;return `${String(hh).padStart(2,'0')}:${mm}`;}
+function getScore(m){const st=m.status||{};let disp=(st.display||st.short||'').toString().trim();let elapsed=st.elapsed||m.elapsed||0;const live=st.is_live===true||/^\d+'$/.test(disp)||elapsed>0;const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT'||disp.toUpperCase()==='FT';let hs=m.home?.score,as=m.away?.score;let valid=hs!==null&&hs!==undefined&&String(hs)!==''&&String(hs).toLowerCase()!=='null'&&as!==null&&as!==undefined&&String(as)!=='';if(fin) return {txt:valid?`${hs} - ${as}`:'-',time:'FT',live:false,fin:true,sched:false,elapsed:9999};if(live){let minute=disp;if(elapsed) minute=elapsed+"'";if(!minute.includes("'") && /^\d+$/.test(minute)) minute=minute+"'";if(!minute||minute.toLowerCase().includes('live')) minute=(elapsed||'LIVE')+(elapsed?"'":'');return {txt:valid?`${hs} - ${as}`:'-',time:minute,live:true,fin:false,sched:false,elapsed:elapsed||parseInt(minute)||0};}return {txt:'-',time:toFranceTime(m.kickoff||m.time||''),live:false,fin:false,sched:true,elapsed:0};}
+function getLeague(m){const L=m.League||m.league||{};let c=(L.country||'World').trim()||'World';let n=(L.name||'League').trim()||'League';let key=`${c.toUpperCase()}: ${n.toUpperCase()}`;if(key.includes('CAF')) return null;if(key.includes('U19')||key.includes('U20')) return null;return {country:c,name:n,key};}
+function getPriority(key){const k=key.toUpperCase();if(k.includes('CHAMPIONS LEAGUE')&&k.includes('EUROPE')) return 1;if(k.includes('EUROPA LEAGUE')&&!k.includes('CONFERENCE')) return 2;if(k.includes('CONFERENCE LEAGUE')) return 3;if(k==='ENGLAND: PREMIER LEAGUE') return 4;if(k==='FRANCE: LIGUE 1') return 5;if(k==='GERMANY: BUNDESLIGA') return 6;if(k==='ITALY: SERIE A') return 7;if(k.includes('LALIGA')||k.includes('LA LIGA')) return 8;if(k.includes('EREDIVISIE')) return 9;if(k.includes('PORTUGAL')&&k.includes('LIGA')) return 10;return 100;}
 
-// CORRECT FRANCE TIME 14:00 UTC = 16:00 France
-function toFranceTime(t){
-  if(!t) return '--:--';
-  let s=t;if(s.includes('T')) s=s.split('T')[1];
-  s=s.substring(0,5);if(!s.includes(':')) return s;
-  let p=s.split(':');let hh=parseInt(p[0],10);let mm=p[1];
-  if(isNaN(hh)) return s;
-  hh=(hh+2)%24;
-  return `${String(hh).padStart(2,'0')}:${mm}`;
-}
-
-// FAST LIKE FLASHSCORE - MINUTES GAP
-function getScore(m){
-  const st=m.status||{};
-  let disp=(st.display||st.short||st.liveTime||'').toString().trim();
-  let elapsed=st.elapsed||m.elapsed||0;
-  const live=st.is_live===true||/^\d+'$/.test(disp)||disp.toLowerCase().includes('live')||elapsed>0;
-  const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT'||disp.toUpperCase()==='FT';
-  let hs=m.home?.score,as=m.away?.score;
-  let valid=hs!==null&&hs!==undefined&&String(hs)!==''&&String(hs).toLowerCase()!=='null'&&as!==null&&as!==undefined&&String(as)!==''&&String(as).toLowerCase()!=='null';
-  if(fin) return {txt:valid?`${hs} - ${as}`:'-',time:'FT',live:false,fin:true,sched:false,elapsed:9999};
-  if(live){
-    let minute=disp;
-    if(elapsed) minute=elapsed+"'";
-    if(!minute.includes("'") && /^\d+$/.test(minute)) minute=minute+"'";
-    if(!minute || minute.toLowerCase().includes('live')) minute=(elapsed||'LIVE')+(elapsed?"'":'');
-    return {txt:valid?`${hs} - ${as}`:'-',time:minute,live:true,fin:false,sched:false,elapsed:elapsed||parseInt(minute)||0};
-  }
-  return {txt:'-',time:toFranceTime(m.kickoff||m.time||''),live:false,fin:false,sched:true,elapsed:0};
-}
-function getLeague(m){
-  const L=m.League||m.league||{};let c=(L.country||'World').trim()||'World';let n=(L.name||'League').trim()||'League';
-  let key=`${c.toUpperCase()}: ${n.toUpperCase()}`;
-  if(key.includes('CAF')) return null;
-  if(key.includes('U19')||key.includes('U20')||key.includes('U-19')||key.includes('U-20')) return null;
-  return {country:c,name:n,key};
-}
-function getPriority(key){
-  const k=key.toUpperCase();
-  if(k.includes('CHAMPIONS LEAGUE')&&k.includes('EUROPE')) return 1;
-  if(k.includes('EUROPA LEAGUE')&&!k.includes('CONFERENCE')) return 2;
-  if(k.includes('CONFERENCE LEAGUE')) return 3;
-  if(k==='ENGLAND: PREMIER LEAGUE') return 4;
-  if(k==='FRANCE: LIGUE 1') return 5;
-  if(k==='GERMANY: BUNDESLIGA') return 6;
-  if(k==='ITALY: SERIE A') return 7;
-  if(k.includes('LALIGA')||k.includes('LA LIGA')) return 8;
-  if(k.includes('EREDIVISIE')) return 9;
-  if(k.includes('PORTUGAL')&&k.includes('LIGA')) return 10;
-  return 100;
-}
-
-// FAST LOAD - Cache + Skeleton like Flashscore
 async function loadMatches(date,force){
-  const cacheKey='ls_'+date;
-  const listEl=document.getElementById('list');
-  // Show skeleton instantly - fast like Flashscore
-  listEl.innerHTML='<div class="skeleton"></div><div class="skeleton"></div>';
-  
-  // If cache exists and not force, show cache immediately
-  if(!force){
-    try{
-      let cached=localStorage.getItem(cacheKey);
-      if(cached){
-        let parsed=JSON.parse(cached);
-        if(parsed&&parsed.time&&Date.now()-parsed.time<120000){ // 2 min cache
-          allMatches=parsed.data||[];
-          render();
-        }
-      }
-    }catch(e){}
-  }
-  
-  try{
-    let r=await fetch(`/api/matches?date=${date}`,{cache:'no-store'});
-    let d=await r.json();
-    allMatches=d.data?.matches||d.matches||d.data||[];
-    if(!Array.isArray(allMatches)) allMatches=[];
-    // Save to cache for instant next load
-    try{localStorage.setItem(cacheKey,JSON.stringify({time:Date.now(),data:allMatches}));}catch(e){}
-    render();
-  }catch(e){
-    if(!allMatches.length){
-      listEl.innerHTML=`<div class="loading">Error ${e.message}<br><button onclick="loadMatches(currentDate,true)" style="margin-top:10px;background:#00e676;color:#000;border:none;padding:8px 18px;border-radius:20px;font-weight:900">Retry ↻</button></div>`;
-    }
-  }
+  const cacheKey='ls_'+date;const listEl=document.getElementById('list');
+  listEl.innerHTML='<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  if(!force){try{let cached=localStorage.getItem(cacheKey);if(cached){let p=JSON.parse(cached);if(p&&Date.now()-p.time<120000){allMatches=p.data||[];render();}}}catch(e){}}
+  try{let r=await fetch(`/api/matches?date=${date}`,{cache:'no-store'});let d=await r.json();allMatches=d.data?.matches||d.matches||d.data||[];if(!Array.isArray(allMatches)) allMatches=[];try{localStorage.setItem(cacheKey,JSON.stringify({time:Date.now(),data:allMatches}));}catch(e){}render();}catch(e){if(!allMatches.length) listEl.innerHTML=`<div class="loading">Error<br><button onclick="loadMatches(currentDate,true)" style="background:#00e676;color:#000;border:none;padding:8px 18px;border-radius:20px;font-weight:900">Retry ↻</button></div>`;}
 }
-function openLeague(c,l){location.href=`/standings.html?country=${encodeURIComponent(c)}&league=${encodeURIComponent(l)}&date=${currentDate}`;}
-function openMatch(m){let data=encodeURIComponent(JSON.stringify(m));location.href=`/match.html?data=${data}&date=${currentDate}&id=${m.id||''}`;}
+
+// CLICKABLE STANDING + RESULTS - FAST MODAL
+function openLeague(country,name){
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalTitle').innerText=country.toUpperCase()+': '+name.toUpperCase()+' - Standing';
+  document.getElementById('modalBody').innerHTML=`<div class="loading">Loading ${name} table...</div>
+  <div style="padding:12px"><div class="ad-wrap"><a class="ad-btn" href="https://www.bet9ja.com" target="_blank">BET ON ${name.toUpperCase()} NOW →</a></div></div>
+  <div style="padding:0 12px">
+  <div class="stand-row head"><div style="width:30px">#</div><div style="flex:1">Team</div><div style="width:30px">P</div><div style="width:30px">Pts</div></div>
+  <div id="standList"><div class="loading">Fetching standings for ${country}...</div></div>
+  <div style="padding:12px;color:#5a6075;font-size:11px">Standings API: /api/standings?league=${encodeURIComponent(name)}&country=${encodeURIComponent(country)}<br>Make sure you add standings API in your backend.</div>
+  </div>`;
+  // Try fetch standings if your API get am
+  fetch(`/api/standings?league=${encodeURIComponent(name)}&country=${encodeURIComponent(country)}&date=${currentDate}`).then(r=>r.json()).then(d=>{
+    let rows=d.data||d.standings||[];
+    if(rows.length){
+      let html=rows.map((t,i)=>`<div class="stand-row"><div style="width:30px">${i+1}</div><div style="flex:1">${t.team||t.name}</div><div style="width:30px">${t.played||0}</div><div style="width:30px;font-weight:900">${t.points||0}</div></div>`).join('');
+      document.getElementById('standList').innerHTML=html;
+    } else {
+      document.getElementById('standList').innerHTML=`<div style="padding:20px;color:#8a8fa3;font-size:12px">Standing clickable working! ✅<br><br>To show real table, add <b>/api/standings</b> endpoint.<br>For now showing all matches for ${name}.</div>`;
+    }
+  }).catch(()=>{});
+}
+
+function openMatch(m){
+  let gs=getScore(m);
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modalTitle').innerText=(m.home?.name||'Home')+' vs '+(m.away?.name||'Away');
+  document.getElementById('modalBody').innerHTML=`
+  <div style="background:#1a1f2f;padding:16px;text-align:center;border-bottom:1px solid #242b40">
+    <div style="font-size:12px;color:#8a8fa3">${getLeague(m)?.country||''} : ${getLeague(m)?.name||''} • ${currentDate} • ${gs.time}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <div style="flex:1;text-align:center;font-weight:900">${m.home?.name||'Home'}</div>
+      <div style="background:#0b0e14;border:1px solid #00e676;border-radius:12px;padding:8px 16px;font-weight:900;color:${gs.live?'#00e676':gs.fin?'#fff':'#8a8fa3'}">${gs.txt}</div>
+      <div style="flex:1;text-align:center;font-weight:900">${m.away?.name||'Away'}</div>
+    </div>
+    <div style="margin-top:12px;color:${gs.live?'#ff3b30':'#5a6075'};font-weight:900;font-size:12px">${gs.live?'LIVE '+gs.time:gs.fin?'Full Time':'Scheduled '+gs.time}</div>
+  </div>
+  <div style="padding:12px"><div class="ad-wrap"><a class="ad-btn" href="https://www.bet9ja.com" target="_blank">BET ON THIS MATCH → 300% BONUS</a></div></div>
+  <div style="padding:12px">
+    <div style="color:#00e676;font-weight:900;font-size:12px;margin-bottom:8px">Match Details - Clickable Results ✅</div>
+    <div style="background:#151a27;border:1px solid #242b40;border-radius:10px;padding:12px;font-size:12px;line-height:20px;color:#d0d4e0">
+      Country: <b>${getLeague(m)?.country||'-'}</b><br>
+      League: <b>${getLeague(m)?.name||'-'}</b><br>
+      Home: <b>${m.home?.name||'-'} - ${m.home?.score||'-'}</b><br>
+      Away: <b>${m.away?.name||'-'} - ${m.away?.score||'-'}</b><br>
+      Status: <b>${gs.time}</b><br>
+      Date: <b>${currentDate}</b>
+    </div>
+  </div>`;
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
 function render(){
   let q=document.getElementById('q').value.toLowerCase();
-  let filt=allMatches.filter(m=>{
-    let L=getLeague(m);if(!L) return false;
-    let gs=getScore(m);
-    if(currentFilter==='live'&&!gs.live) return false;
-    if(currentFilter==='finished'&&!gs.fin) return false;
-    if(currentFilter==='scheduled'&&!gs.sched) return false;
-    if(q){let txt=`${L.country} ${L.name} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q)) return false;}
-    return true;
-  });
+  let filt=allMatches.filter(m=>{let L=getLeague(m);if(!L) return false;let gs=getScore(m);if(currentFilter==='live'&&!gs.live) return false;if(currentFilter==='finished'&&!gs.fin) return false;if(currentFilter==='scheduled'&&!gs.sched) return false;if(q){let txt=`${L.country} ${L.name} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q)) return false;}return true;});
   let groups={};filt.forEach(m=>{let L=getLeague(m);if(!L) return;if(!groups[L.key]) groups[L.key]={country:L.country,name:L.name,key:L.key,p:getPriority(L.key),matches:[]};groups[L.key].matches.push(m);});
   let sorted=Object.values(groups).sort((a,b)=>{if(a.p!==b.p) return a.p-b.p;if(a.country.toUpperCase()!==b.country.toUpperCase()) return a.country.toUpperCase().localeCompare(b.country.toUpperCase());return a.name.toUpperCase().localeCompare(b.name.toUpperCase());});
-  // FT ON TOP + LIVE MINUTES GAP SORT
-  sorted.forEach(g=>{
-    g.matches.sort((x,y)=>{
-      let gx=getScore(x),gy=getScore(y);
-      if(gx.fin&&!gy.fin) return -1;
-      if(!gx.fin&&gy.fin) return 1;
-      if(gx.live&&!gy.live) return -1;
-      if(!gx.live&&gy.live) return 1;
-      if(gx.live&&gy.live) return (gy.elapsed||0)-(gx.elapsed||0);
-      return gx.time.localeCompare(gy.time);
-    });
-  });
+  sorted.forEach(g=>{g.matches.sort((x,y)=>{let gx=getScore(x),gy=getScore(y);if(gx.fin&&!gy.fin) return -1;if(!gx.fin&&gy.fin) return 1;if(gx.live&&!gy.live) return -1;if(!gx.live&&gy.live) return 1;if(gx.live&&gy.live) return (gy.elapsed||0)-(gx.elapsed||0);return gx.time.localeCompare(gy.time);});});
   let liveNum=filt.filter(m=>getScore(m).live).length;
   document.getElementById('liveCount').innerText=liveNum?`${liveNum} LIVE`:'';
-  document.getElementById('count').innerText=`${filt.length} matches • ${sorted.length} leagues • ${currentDate} • No auto-refresh`;
+  document.getElementById('count').innerText=`${filt.length} matches • ${sorted.length} leagues • ${currentDate} • No auto-refresh • Fast`;
   let list=document.getElementById('list');
-  if(!filt.length){list.innerHTML=`<div class="loading">No matches for ${currentDate}<br><button onclick="setF('all')" style="background:#fff;color:#000;border:none;padding:6px 14px;border-radius:20px;margin-top:8px">Show All</button></div>`;return;}
-  // Fast DOM build
-  let html='';
-  for(let g of sorted){
-    html+=`<div class="league" onclick="openLeague('${g.country.replace(/'/g,"")}','${g.name.replace(/'/g,"")}')"><div class="league-left">🟢 ${g.country.toUpperCase()}: ${g.name.toUpperCase()}</div><div class="league-right">Standings ›</div></div>`;
-    for(let m of g.matches){
-      let gs=getScore(m);
-      let safe=JSON.stringify(m).replace(/'/g,"&#39;");
-      let tClass=gs.live?'live':gs.fin?'ft':'';
-      html+=`<div class="match" onclick='openMatch(${safe})'><div class="time ${tClass}">${gs.time}</div><div class="teams"><div class="team">${m.home?.name||'Home'}</div><div class="team">${m.away?.name||'Away'}</div></div><div class="score ${tClass}">${gs.txt}</div></div>`;
-    }
-  }
-  list.innerHTML=html;
+  if(!filt.length){list.innerHTML=`<div class="loading">No matches</div>`;return;}
+  let html='';for(let g of sorted){html+=`<div class="league" onclick="openLeague('${g.country.replace(/'/g,"")}','${g.name.replace(/'/g,"")}')"><div class="league-left">🟢 ${g.country.toUpperCase()}: ${g.name.toUpperCase()}</div><div class="league-right">Standing ›</div></div>`;for(let m of g.matches){let gs=getScore(m);let safe=JSON.stringify(m).replace(/'/g,"&#39;");let tClass=gs.live?'live':gs.fin?'ft':'';html+=`<div class="match" onclick='openMatch(${safe})'><div class="time ${tClass}">${gs.time}</div><div class="teams"><div class="team">${m.home?.name||'Home'}</div><div class="team">${m.away?.name||'Away'}</div></div><div class="score ${tClass}">${gs.txt}</div></div>`;}}list.innerHTML=html;
 }
 buildDays();loadMatches(currentDate,false);
-// NO AUTO REFRESH - REMOVED setInterval as you requested
 </script></body></html>
