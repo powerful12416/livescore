@@ -16,4 +16,4 @@ export async function onRequestGet(context) {
   } catch (e) {
     return new Response(JSON.stringify({ success: false, error: e.message, data: { matches: [] } }), { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } });
   }
-}
+}htft
