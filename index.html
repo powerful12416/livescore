@@ -1,207 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>LiveScore France Correct</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#0e1117;color:#fff;font-family:system-ui}
-.top{padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0e1117;z-index:10;border-bottom:1px solid #1f242f}
-.tabs{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;background:#0e1117;position:sticky;top:53px;z-index:9}
-.tabs::-webkit-scrollbar{display:none}
-.tab{white-space:nowrap;padding:8px 18px;border-radius:20px;background:#1e222b;color:#8b8f99;border:none;font-weight:600;font-size:14px;cursor:pointer}
-.tab.active{background:#1fd464;color:#000}
-.tab-drop{padding:8px 12px;border-radius:20px;background:#1e222b;color:#8b8f99;border:none}
-.filters{display:flex;gap:8px;padding:10px 16px;overflow-x:auto}
-.filters::-webkit-scrollbar{display:none}
-.f{white-space:nowrap;padding:7px 14px;border-radius:8px;background:#1e222b;color:#8b8f99;border:1px solid #2a303f;font-size:13px;font-weight:600;cursor:pointer}
-.f.active{background:#fff;color:#000}
-.search{margin:8px 16px;background:#1a1f2b;border-radius:10px;display:flex;align-items:center;padding:10px 14px;gap:8px}
-.search input{flex:1;background:transparent;border:none;color:#fff;outline:none;font-size:14px}
-.league-head{background:#151a25;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-top:1px solid #1f242f}
-.league-head .l{font-size:12px;font-weight:700}
-.league-head .l .country{color:#fff}
-.league-head .l .lname{color:#1fd464}
-.league-head span{font-size:11px;color:#1fd464;font-weight:600}
-.match-row{display:flex;align-items:center;padding:12px 16px;background:#0e1117;border-bottom:1px solid #1a1f2b;cursor:pointer}
-.match-row:active{background:#1a1f2b}
-.time{width:62px;font-size:12px;color:#8b8f99;font-weight:700}
-.time.live{color:#ff3b30}
-.teams{flex:1;font-size:14px;line-height:20px}
-.score{width:70px;text-align:right;font-weight:800;font-size:14px}
-.score.live{color:#1fd464}
-.score.fin{color:#fff}
-.dot{width:6px;height:6px;background:#ff3b30;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}
-@keyframes blink{50%{opacity:0}}
-.modal{position:fixed;inset:0;background:#0e1117;z-index:100;padding:16px;overflow:auto;display:none}
-.modal.show{display:block}
-</style>
-</head>
-<body>
-<div class="top">
-<span onclick="history.back()" style="font-size:22px;cursor:pointer">←</span>
-<div><h1 id="dateHead">France Today</h1><small id="subHead">France Time - Europe/Paris - Same as Flashscore</small></div>
-</div>
-<div class="tabs" id="dayTabs"></div>
-<div class="filters">
-<button class="f active" data-f="all" onclick="setFilter('all')">All</button>
-<button class="f" data-f="live" onclick="setFilter('live')">Live</button>
-<button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button>
-<button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button>
-<button class="f" onclick="loadMatches(currentDate)">↻ Refresh</button>
-</div>
-<div class="search"><span>🔍</span><input id="q" placeholder="Search team, league..." oninput="render()"></div>
-<div id="list"></div>
-<div id="modal" class="modal" onclick="this.classList.remove('show')">
-<div style="display:flex;justify-content:space-between"><b id="mTitle"></b><span>✕</span></div>
-<div id="mBody" style="margin-top:20px"></div>
-</div>
-
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LiveScore 2026 Real</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0e1117;color:#fff;font-family:system-ui}.top{padding:12px 16px;position:sticky;top:0;background:#0e1117;border-bottom:1px solid #1f242f}.tabs{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;position:sticky;top:53px;background:#0e1117;z-index:9}.tab{white-space:nowrap;padding:8px 18px;border-radius:20px;background:#1e222b;color:#8b8f99;border:none;font-weight:700;cursor:pointer}.tab.active{background:#1fd464;color:#000}.filters{display:flex;gap:8px;padding:10px 16px;overflow-x:auto}.f{padding:7px 14px;border-radius:8px;background:#1e222b;color:#8b8f99;border:1px solid #2a303f;font-weight:700;cursor:pointer;white-space:nowrap}.f.active{background:#fff;color:#000}.search{margin:8px 16px;background:#1a1f2b;border-radius:10px;display:flex;padding:10px 14px;gap:8px}.search input{flex:1;background:transparent;border:none;color:#fff;outline:none}.league-head{background:#151a25;padding:11px 16px;display:flex;justify-content:space-between;border-top:1px solid #1f242f}.l{font-size:12px;font-weight:800}.country{color:#fff}.lname{color:#1fd464}.match-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #1a1f2b}.time{width:80px;font-size:12px;color:#8b8f99;font-weight:800}.time.live{color:#ff3b30}.teams{flex:1;font-size:14px}.score{width:80px;text-align:right;font-weight:900}.score.live{color:#1fd464}.dot{width:6px;height:6px;background:#ff3b30;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}@keyframes blink{50%{opacity:0}}</style></head><body>
+<div class="top"><b id="dateHead"></b><small style="color:#8b8f99;margin-left:8px">Real API - 236 credits</small></div><div class="tabs" id="dayTabs"></div><div class="filters"><button class="f active" data-f="all" onclick="setFilter('all')">All</button><button class="f" data-f="live" onclick="setFilter('live')">Live</button><button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button><button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button><button class="f" onclick="loadMatches(currentDate)">↻</button></div><div class="search"><span>🔍</span><input id="q" placeholder="Search..." oninput="render()"></div><div id="list"></div>
 <script>
-// *** USE FRANCE DATE, NOT NIGERIA DATE - THIS FIXES YOUR ITALY ISSUE ***
-function getFranceDateISO(offsetDays=0){
-  const now=new Date();
-  // Get date in Europe/Paris
-  const frStr=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
-  let d=new Date(frStr+'T12:00:00');
-  d.setDate(d.getDate()+offsetDays);
-  return d.toISOString().split('T')[0];
-}
-function fmtDate(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
-
-let currentDate=getFranceDateISO(0);
-let allMatches=[], currentFilter='all';
-const TOP=['Champions League','Premier League','La Liga','Serie A','Bundesliga','Ligue 1','Europa League','ENGLAND','SPAIN','FRANCE','ITALY','GERMANY'];
-function getPrio(n){for(let i=0;i<TOP.length;i++) if(n.toUpperCase().includes(TOP[i].toUpperCase())) return i; return 999;}
-
-// FRANCE TIME CORRECT
-function toFranceTime(timeStr, dateStr){
-  try{
-    if(!timeStr) return '--:--';
-    let t=timeStr.toString().split('T').pop().substring(0,5);
-    if(!t.includes(':')) return timeStr;
-    let [hh,mm]=t.split(':').map(Number);
-    let utc=new Date(`${dateStr}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00Z`);
-    let fr=new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris',hour12:false}).format(utc);
-    return fr;
-  }catch{ let [h,m]=timeStr.split(':').map(Number); h=(h+1)%24; return `${String(h).padStart(2,'0')}:${String(m||0).padStart(2,'0')}`; }
-}
-
-function buildTabs(){
-  const c=document.getElementById('dayTabs'); let html='';
-  for(let i=-3;i<=3;i++){
-    let iso=getFranceDateISO(i);
-    let label=i===0?'Today':i===-1?'Yesterday':i===1?'Tomorrow':fmtDate(iso);
-    html+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;
+function getFranceDateISO(o=0){const now=new Date();const fr=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);let d=new Date(fr+'T12:00:00');d.setDate(d.getDate()+o);return d.toISOString().split('T')[0];}
+let currentDate=getFranceDateISO(0),allMatches=[],currentFilter='all';
+function buildTabs(){const c=document.getElementById('dayTabs');let h='';for(let i=-2;i<=2;i++){let iso=getFranceDateISO(i);let label=i===0?'Today':i===-1?'Yesterday':i===1?'Tomorrow':iso;h+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;}c.innerHTML=h;document.getElementById('dateHead').innerText='France '+currentDate;}
+function pickDate(iso){currentDate=iso;buildTabs();loadMatches(iso);}function setFilter(f){currentFilter=f;document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f));render();}
+function getScore(m){
+  const stObj=m.status||{}; const display=(stObj.display||'').toString(); const isLive=stObj.is_live===true || (stObj.status||'').toLowerCase().includes('live');
+  let hs=m.home?.score, as=m.away?.score;
+  if(hs!==undefined && as!==undefined){
+    if(display==='FT'||stObj.status==='finished') return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true};
+    if(isLive) return {s:`${hs} - ${as}`,t:display||'LIVE',live:true,fin:false};
+    return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true};
   }
-  html+=`<select class="tab-drop" onchange="pickDate(this.value)"><option>More ▼</option>${(()=>{let o='';for(let i=-7;i<=7;i++){let iso=getFranceDateISO(i); o+=`<option value="${iso}">${iso} - ${fmtDate(iso)}</option>`;}return o;})()}</select>`;
-  c.innerHTML=html;
-  document.getElementById('dateHead').innerText=fmtDate(currentDate);
-  document.getElementById('subHead').innerText=`France Time - Europe/Paris - ${currentDate} (Today in France)`;
+  return {s:'-',t:display==='FT'?'FT':(isLive?display:''),live:isLive,fin:display==='FT'};
 }
-function pickDate(iso){currentDate=iso; buildTabs(); loadMatches(iso);}
-function setFilter(f){currentFilter=f; document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f)); render();}
-function getStatus(m){const s=m.status||''; return s.toString().toLowerCase();}
-
-// FIXED SCORE - NOW SHOWS 4-2, 0-3 etc
-function getScoreAndMinute(m){
-  const st=getStatus(m);
-  const sc=m.score||{};
-  if(st==='scheduled'){
-    return {score:'-', minute:''};
-  }
-  // For finished and live - ALWAYS show score
-  let h=sc.home; let a=sc.away;
-  // Handle 0 as valid score
-  let scoreText='-';
-  if(h!==undefined && a!==undefined && h!==null && a!==null){
-    scoreText=`${h} - ${a}`;
-  }else if(m.home_score!==undefined){
-    scoreText=`${m.home_score} - ${m.away_score}`;
-  }
-  
-  let minute='';
-  if(st==='live') minute=m.minute? m.minute+"'" : 'LIVE';
-  else if(st==='finished' || st==='ft') minute='FT';
-  else if(st==='ht') minute='HT';
-  
-  return {score:scoreText, minute:minute};
-}
-
-async function loadMatches(date){
-  const list=document.getElementById('list');
-  list.innerHTML=`<div style="text-align:center;padding:40px;color:#8b8f99">Loading ${date} (France date)...<br>Same as Flashscore date</div>`;
-  try{
-    const r=await fetch(`/api/matches?date=${date}`);
-    const d=await r.json();
-    allMatches=d.data?.matches||d.data||d.matches||[];
-    console.log('Date',date,'matches',allMatches.length,'sample',allMatches[0]);
-    render();
-  }catch(e){ list.innerHTML='Error: '+e.message; }
-}
-
+async function loadMatches(date){document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#8b8f99">Loading ${date}...</div>`;try{const r=await fetch(`/api/matches?date=${date}`);const d=await r.json();allMatches=d.data?.matches||[];render();}catch(e){document.getElementById('list').innerHTML='Error '+e.message;}}
 function render(){
   const q=document.getElementById('q').value.toLowerCase();
-  let filtered=allMatches.filter(m=>{
-    const st=getStatus(m);
-    if(currentFilter==='live' && !st.includes('live')) return false;
-    if(currentFilter==='finished' && !(st.includes('finish')||st==='ft')) return false;
-    if(currentFilter==='scheduled' && st!=='scheduled') return false;
-    if(q){
-      const txt=`${m.league?.name||''} ${m.home?.name||''} ${m.away?.name||''} ${m.league?.country||''}`.toLowerCase();
-      if(!txt.includes(q)) return false;
-    }
-    return true;
-  });
-
-  const groups={};
-  filtered.forEach(m=>{
-    const country=(m.league?.country||'World').toString().trim();
-    const lname=(m.league?.name||'League').toString().trim();
-    const key=`${country.toUpperCase()}: ${lname.toUpperCase()}`;
-    if(!groups[key]) groups[key]={country,lname,raw:key,matches:[]};
-    groups[key].matches.push(m);
-  });
-  let sorted=Object.values(groups).sort((a,b)=>{
-    const pa=getPrio(a.raw), pb=getPrio(b.raw);
-    if(pa!==pb) return pa-pb;
-    return a.raw.localeCompare(b.raw);
-  });
-
+  let filt=allMatches.filter(m=>{const gs=getScore(m);if(currentFilter==='live'&&!gs.live)return false;if(currentFilter==='finished'&&!gs.fin)return false;if(currentFilter==='scheduled'&&(gs.live||gs.fin))return false;if(q){const txt=`${m.League?.name||''} ${m.League?.country||''} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q))return false;}return true;});
+  const groups={};filt.forEach(m=>{const L=m.League||{};const key=`${(L.country||'World').toUpperCase()}: ${(L.name||'League').toUpperCase()}`;if(!groups[key]) groups[key]={country:L.country||'World',lname:L.name||'League',key,matches:[]};groups[key].matches.push(m);});
+  const sorted=Object.values(groups).sort((a,b)=>a.key.localeCompare(b.key));
   const list=document.getElementById('list');
-  if(!filtered.length){ list.innerHTML=`<div style="text-align:center;padding:40px;color:#8b8f99">No ${currentFilter} matches for ${currentDate} (France date)<br><br>Tap Yesterday to see Finished results like 4-2</div>`; return; }
-
-  list.innerHTML=sorted.map(g=>`
-    <div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span>: <span class="lname">${g.lname.toUpperCase()}</span></div><span>Standings</span></div>
-    <div>
-    ${g.matches.map(m=>{
-      const st=getStatus(m);
-      const isLive=st.includes('live');
-      const {score, minute}=getScoreAndMinute(m);
-      const time=toFranceTime(m.kickoff||m.time||m.start_time, currentDate);
-      const home=m.home?.name||'Home';
-      const away=m.away?.name||'Away';
-      let leftText = isLive ? (minute||'LIVE') : (st.includes('finish')||st==='ft' ? 'FT' : time);
-      // If finished, show score like Flashscore: "20:45 Frosinone - Sassuolo 4-2"
-      return `<div class="match-row" onclick="openMatch('${m.id||m.match_id}')">
-        <div class="time ${isLive?'live':''}">${isLive?'<span class="dot"></span>':''}${leftText}</div>
-        <div class="teams"><div>${home}</div><div>${away}</div></div>
-        <div class="score ${isLive?'live':''} ${st.includes('finish')||st==='ft'?'fin':''}">${score}</div>
-      </div>`;
-    }).join('')}
-    </div>
-  `).join('');
+  if(!filt.length){list.innerHTML=`<div style="text-align:center;padding:30px;color:#8b8f99">No ${currentFilter} for ${currentDate}<br>Total: ${allMatches.length}</div>`;return;}
+  list.innerHTML=sorted.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span>: <span class="lname">${g.lname.toUpperCase()}</span></div><span>Standings</span></div>${g.matches.map(m=>{const gs=getScore(m);return `<div class="match-row"><div class="time ${gs.live?'live':''}">${gs.live?'<span class="dot"></span>':''}${gs.t||m.kickoff||''}</div><div class="teams"><div>${m.home?.name||'Home'}</div><div>${m.away?.name||'Away'}</div></div><div class="score ${gs.live?'live':''}">${gs.s}</div></div>`;}).join('')}`).join('');
 }
-
-function openMatch(id){
-  const m=allMatches.find(x=>(x.id||x.match_id)==id); if(!m) return;
-  document.getElementById('modal').classList.add('show');
-  const {score, minute}=getScoreAndMinute(m);
-  document.getElementById('mTitle').innerText=`${m.home?.name||''} vs ${m.away?.name||''}`;
-  document.getElementById('mBody').innerHTML=`<p><b>League:</b> ${m.league?.name} (${m.league?.country})</p><p><b>France Date:</b> ${currentDate}</p><p><b>France Time:</b> ${toFranceTime(m.kickoff||m.time,currentDate)} (Europe/Paris)</p><p><b>Status:</b> ${getStatus(m)} ${minute}</p><p><b>Score:</b> ${score} (Real result)</p><p style="margin-top:15px;color:#1fd464">Now matches Flashscore: Yesterday shows 20:45 Frosinone - Sassuolo 4-2</p>`;
-}
-
-buildTabs(); loadMatches(currentDate);
-setInterval(()=>loadMatches(currentDate),60000);
-</script>
-</body>
-</html>
+buildTabs();loadMatches(currentDate);
+</script></body></html>
