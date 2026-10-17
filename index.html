@@ -1,30 +1,38 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Livescore Top 10 + A-Z</title><style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial}
-.top{background:#000;padding:14px 16px;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;display:flex;justify-content:space-between}
-.tabs{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;position:sticky;top:48px;z-index:9;border-bottom:1px solid #1a1a1a}.tabs::-webkit-scrollbar{display:none}
-.tab{padding:8px 16px;border-radius:20px;background:#1a1a1a;color:#999;border:1px solid #2a2a2a;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}.tab.active{background:#00d26a;color:#000}
-.filters{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000}.f{padding:6px 14px;border-radius:20px;background:#1a1a1a;color:#999;border:1px solid #2a2a2a;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}.f.active{background:#fff;color:#000}
-.search{margin:10px 12px;background:#1a1a1a;border-radius:8px;display:flex;padding:10px 12px;gap:8px;border:1px solid #252525}.search input{flex:1;background:transparent;border:none;color:#fff;outline:none}
-.league-head{background:#1e222d;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #2a2f3d;border-bottom:1px solid #2a2f3d;cursor:pointer}
-.league-head:hover{background:#252c3d}
-.l{font-size:11px;font-weight:900}.country{color:#00d26a}.lname{color:#00d26a}.stand{color:#00d26a;text-decoration:underline;font-size:11px}
-.match-row{display:flex;align-items:center;padding:12px;background:#000;border-bottom:1px solid #141414;cursor:pointer}
-.match-row:hover{background:#111}
-.time{width:48px;font-size:12px;color:#888;font-weight:700}.time.live{color:#ff3d3d}
-.teams{flex:1;font-size:13px;line-height:17px}
-.score{width:65px;text-align:right;font-weight:800}.score.live{color:#00d26a}
-</style></head><body>
-<div class="top"><b id="dateHead"></b><b onclick="loadMatches(currentDate)" style="color:#00d26a;cursor:pointer">↻</b></div>
-<div class="tabs" id="dayTabs"></div>
-<div class="filters"><button class="f active" data-f="all" onclick="setFilter('all')">All</button><button class="f" data-f="live" onclick="setFilter('live')">Live</button><button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button><button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button></div>
-<div class="search"><span>🔍</span><input id="q" placeholder="Search country, league, club..." oninput="render()"></div>
-<div id="list"></div>
-<script>
-function getFranceDateISO(o=0){const now=new Date();const fr=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);let d=new Date(fr+'T12:00:00');d.setDate(d.getDate()+o);return d.toISOString().split('T')[0];}
-let currentDate=getFranceDateISO(0),allMatches=[],currentFilter='all';
-function buildTabs(){const c=document.getElementById('dayTabs');let h='';for(let i=-2;i<=2;i++){let iso=getFranceDateISO(i);let label=i===0?'Today':i===-1?'Yesterday':i===1?'Tomorrow':iso.slice(5);h+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;}c.innerHTML=h;document.getElementById('dateHead').innerText='France '+currentDate;}
-function pickDate(iso){currentDate=iso;buildTabs();loadMatches(iso);}function setFilter(f){currentFilter=f;document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f));render();}
-function isValid(v){if(v===null||v===undefined) return false;const s=String(v).trim().toLowerCase();return s!==""&&s!=="null"&&s!=="undefined";}
-function toFranceTime(t){if(!t||!t.includes(':')) return t||'00:00';const p=t.split(':');let h=parseInt(p[0],10),m=parseInt(p[1],10);if(isNaN(h)) return t;h=(h+2)%24;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
-function getScore(m){const st=m.status||{};const disp=(st.display||'').toString();const live=st.is_live===true;const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT';const sched=!live&&!fin;let hs=m.home?.score,as=m.away?.score;if(!isValid(hs))hs=null;if(!isValid(as))as=null;if(isValid(hs)&&isValid(as)){if(fin) return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};if(live) return {s:`${hs} - ${as}`,t:disp||'LIVE',live:true,fin:false,sched:false,ok:true};return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};}if(sched){return {s:'-',t:toFranceTime(m.kickoff||''),live:false,fin:false,sched:true,ok:true};}return {s:'-',t:disp,live,fin,ok:false};}
-function deepFindLeague(m){const L
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Livescore - Top 10 + A-Z Clickable</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+.top-bar{background:#000;padding:12px 14px;border-bottom:1px solid #222;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
+.top-bar b{font-size:14px}
+.reload{color:#00d26a;cursor:pointer;font-size:20px;font-weight:900;user-select:none}
+.day-tabs{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;position:sticky;top:46px;z-index:99;border-bottom:1px solid #1a1a1a;scrollbar-width:none}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-tab{padding:8px 16px;border-radius:20px;background:#1a1a1a;color:#999;border:1px solid #2a2a2a;font-weight:800;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.day-tab.active{background:#00d26a;color:#000;border-color:#00d26a}
+.filters{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{padding:7px 16px;border-radius:20px;background:#1a1a1a;color:#888;border:1px solid #2a2a2a;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.filter-btn.active{background:#fff;color:#000}
+.search-wrap{margin:10px 12px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;padding:12px 14px;gap:10px;border:1px solid #252525}
+.search-wrap input{flex:1;background:transparent;border:none;color:#fff;outline:none;font-size:14px}
+.search-wrap input::placeholder{color:#666}
+.league-header{background:#1e222d;padding:11px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #2a2f3d;border-bottom:1px solid #2a2f3d;cursor:pointer;user-select:none}
+.league-header:active{background:#252c3d}
+.league-left{font-size:11px;font-weight:900;display:flex;gap:4px;flex-wrap:wrap}
+.country-name{color:#00d26a}
+.sep{color:#666}
+.league-name{color:#00d26a}
+.standings-link{color:#00d26a;text-decoration:underline;font-size:11px;font-weight:700;flex-shrink:0;margin-left:10px}
+.match-card{display:flex;align-items:center;padding:12px 12px;background:#000;border-bottom:1px solid #141414;cursor:pointer}
+.match-card:hover{background:#0f0f0f}
+.match-card:active{background:#1a1a1a}
+.match-time{width:52px;font-size:12px;color:#888;font-weight:700;line-height:14px;flex-shrink:0}
+.match-time.live{color:#ff3d3d;font-weight:900}
+.match-teams{flex:1;min-width:0}
+.team-row{font-size:13px;line-height:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e5e5e5}
+.team-row.home{font-weight:
