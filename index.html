@@ -1,133 +1,123 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Top 10 Livescore - Clickable + Advert</title><style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial}
-.top{background:#000;padding:14px 16px;border-bottom:1px solid #222;position:sticky;top:0;z-index:20;display:flex;justify-content:space-between}
-.tabs{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;position:sticky;top:48px;z-index:15;border-bottom:1px solid #1a1a1a}.tabs::-webkit-scrollbar{display:none}
-.tab{padding:8px 16px;border-radius:20px;background:#1a1a1a;color:#999;border:1px solid #2a2a2a;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}.tab.active{background:#00d26a;color:#000}
-.filters{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000}.f{padding:6px 14px;border-radius:20px;background:#1a1a1a;color:#999;border:1px solid #2a2a2a;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}.f.active{background:#fff;color:#000}
-.search{margin:10px 12px;background:#1a1a1a;border-radius:8px;display:flex;padding:10px 12px;gap:8px;border:1px solid #252525}.search input{flex:1;background:transparent;border:none;color:#fff;outline:none}
-.ad-wrapper{margin:12px;background:#111;border:1px solid #00d26a;border-radius:10px;overflow:hidden}
-.ad-header{display:flex;justify-content:space-between;padding:6px 10px;background:#1a1a1a;border-bottom:1px solid #222}
-.ad-header small{color:#00d26a;font-size:9px;font-weight:900;letter-spacing:1px}
-.ad-box{min-height:90px;background:#000;display:flex;align-items:center;justify-content:center;padding:8px}
-.league-head{background:#1e222d;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #2a2f3d;border-bottom:1px solid #2a2f3d}
-.l{font-size:11px;font-weight:900}.country{color:#00d26a}.sep{color:#00d26a}.lname{color:#00d26a}.stand{color:#00d26a;text-decoration:underline;font-size:11px}
-.match-row{display:flex;align-items:center;padding:12px;background:#000;border-bottom:1px solid #141414;cursor:pointer;transition:0.15s}
-.match-row:hover{background:#111}.match-row:active{background:#1e1e1e}
-.time{width:55px;font-size:12px;color:#888;font-weight:700}.time.live{color:#ff3d3d}.teams{flex:1;font-size:13px;line-height:18px}.score{width:60px;text-align:right;font-weight:900}.score.live{color:#00d26a}
-</style></head><body>
-<div class="top"><b id="dateHead"></b><b onclick="loadMatches(currentDate)" style="color:#00d26a;cursor:pointer">↻</b></div>
-<div class="tabs" id="dayTabs"></div>
-<div class="filters"><button class="f active" data-f="all" onclick="setFilter('all')">All</button><button class="f" data-f="live" onclick="setFilter('live')">Live</button><button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button><button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button></div>
-<div class="search"><span>🔍</span><input id="q" placeholder="Search team, league..." oninput="render()"></div>
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Match Details - Flashscore Style</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;color:#000;font-family:Arial,sans-serif;font-size:13px}
+.header{background:#fff;padding:10px 12px;border-bottom:2px solid #000;display:flex;align-items:center;gap:8px}
+.logo{font-weight:900;font-size:18px} .logo span{color:#cc0000}
+.top-links{padding:8px 10px;color:#0000cc;font-size:12px;border-bottom:1px solid #ddd}
+.top-links a{color:#0000cc;text-decoration:underline}
+.match-head{background:#006600;color:#fff;padding:6px 10px;font-weight:900;font-size:13px}
+.match-head a{color:#fff;text-decoration:none}
+.score-box{padding:8px 10px;border-bottom:1px solid #ddd;line-height:18px}
+.score-box b{font-size:14px}
+.score-box .time{color:#666;font-size:12px}
 
-<!-- ✅ ADVERT - AFTER SEARCH, BEFORE TOP 10 LEAGUES -->
-<div class="ad-wrapper">
-  <div class="ad-header"><small>ADVERTISEMENT</small><small>TOP ODDS</small></div>
-  <div class="ad-box">
-    <a href="https://www.bet9ja.com" target="_blank" style="background:linear-gradient(90deg,#00d26a,#00a854);color:#000;padding:12px 18px;border-radius:8px;font-weight:900;text-decoration:none;font-size:13px;text-align:center;display:block;width:100%">
-      🔥 PREMIER LEAGUE SPECIAL - BET NOW!<br><span style="font-size:11px">300% BONUS + BEST ODDS →</span>
-    </a>
-    <!-- FOR ADSTERRA, UNCOMMENT BELOW AND REMOVE GREEN BUTTON:
-    <script>atOptions={key:'YOUR_ADSTERRA_KEY',format:'iframe',height:90,width:728,params:{}};</script><script src="//www.highperformanceformat.com/YOUR_ADSTERRA_KEY/invoke.js"></script>
-    -->
-  </div>
+/* 3 ADVERT BOXES LIKE YOUR SCREENSHOT */
+.ads{display:flex;gap:8px;padding:8px 10px;overflow-x:auto;background:#f5f5f5;border-bottom:1px solid #ddd}
+.ads::-webkit-scrollbar{display:none}
+.ad-card{min-width:140px;max-width:140px;background:#e6f2ff;border:1px solid #c5d9f0;border-radius:6px;padding:8px;font-size:11px;line-height:14px}
+.ad-card a{color:#cc0000;text-decoration:underline;font-weight:700}
+.ad-label{padding:4px 10px;color:#888;font-size:11px}
+
+.tabs{padding:8px 10px;border-bottom:1px solid #000;display:flex;flex-wrap:wrap;gap:4px}
+.tabs a{color:#0000cc;text-decoration:underline;font-weight:700;font-size:12px}
+.tabs a.active{color:#000;text-decoration:none;font-weight:900}
+
+.section-head{background:#000;color:#fff;padding:5px 10px;font-weight:900;font-size:12px;margin-top:4px}
+.events{padding:6px 10px;line-height:20px;font-size:12px}
+.events div{border-bottom:1px dotted #eee}
+.odds-head{background:#cc0000;color:#fff;padding:5px 10px;font-weight:900;margin-top:8px;font-size:12px}
+.odds-box{padding:8px 10px;border-bottom:1px solid #ddd}
+.odds-box a{color:#0000cc}
+.odds-values{color:#0000cc;text-decoration:underline}
+.refresh{padding:8px 10px;color:#0000cc;text-decoration:underline;font-size:12px;border-top:1px solid #000;border-bottom:1px solid #000;margin-top:10px;display:block}
+.bottom-nav{padding:8px 10px}
+.bottom-nav a{color:#0000cc;text-decoration:underline;font-size:12px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;padding:10px;justify-content:center}
+.pill{border:1px solid #ccc;border-radius:20px;padding:8px 14px;background:#f0f0f0;font-size:12px;color:#333}
+.pill b{margin-right:4px}
+.url-bar{background:#333;color:#fff;padding:8px 10px;border-radius:20px;margin:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+</style>
+</head><body>
+
+<div class="header"><div class="logo">⚡ FLASHSCORE</div></div>
+<a href="/" class="top-links" style="display:block">REFRESH NOW</a>
+
+<div class="match-head" id="matchHead">Everton - Chelsea</div>
+<div class="score-box" id="scoreBox">
+<b>0-0</b> (0-0)<br>
+Half Time<br>
+<span class="time" id="matchTime">17.10.2026 13:30</span>
 </div>
 
-<div id="list"></div>
+<!-- 3 ADVERTS LIKE YOUR SCREENSHOT -->
+<div class="ads">
+  <div class="ad-card">
+    <a href="https://www.bet9ja.com" target="_blank">50% stake back as a Sports Freebet on UCL games</a>
+  </div>
+  <div class="ad-card">
+    🎁 <a href="#" target="_blank">1XBET: 300% deposit bonus! If you deposit NGN 170,001 or more, you'll get a 300%...</a>
+  </div>
+  <div class="ad-card">
+    🎁 <a href="#" target="_blank">BETANO: Welcome Bonus up to ₦200,000</a>
+  </div>
+</div>
+<div class="ad-label">Advertisement</div>
+
+<div class="tabs">
+  <a href="#" class="active">Summary</a> | 
+  <a href="#">Lineups</a> | 
+  <a href="#">Stats</a> | 
+  <a href="#">Commentary</a> | 
+  <a href="#">Standings</a> | 
+  <a href="#">H2H</a>
+</div>
+
+<div class="section-head" id="halfHead">1st Half: 0-0</div>
+<div class="events" id="events">
+  <div>23' &nbsp; Armstrong H. [EVE]</div>
+  <div>27' &nbsp; Neto P. [CHE]</div>
+  <div>32' &nbsp; Acheampong J. [CHE]</div>
+  <div>34' &nbsp; Tarkowski J. [EVE]</div>
+  <div>34' &nbsp; Rogers M. [CHE]</div>
+</div>
+
+<div class="odds-head">Odds</div>
+<div class="odds-box">
+  <span class="odds-values">3.11 | 3.56 | 2.28</span><br><br>
+  <a href="#" style="font-weight:900">Bet on this match now LIVE! <span style="background:#ffff00;padding:1px 3px">L</span></a><br><br>
+  <small>Odds provided by 1xBet - <a href="#" style="color:#cc0000">Bet now!</a></small>
+</div>
+
+<a href="/" class="refresh">REFRESH NOW</a>
+
+<div class="bottom-nav">
+  <a href="javascript:history.back()">Back</a> | <a href="#">Top</a>
+  <div style="float:right">▼</div>
+</div>
+
+<div class="pills">
+  <div class="pill">Discover more</div>
+  <div class="pill">📄 Track Live Scores</div>
+  <div class="pill">📄 Stream Soccer</div>
+  <div class="pill">📄 Train Managers</div>
+  <div class="pill">📄 Stats</div>
+  <div class="pill">📄 Deportes en vivo</div>
+  <div class="pill">📄 FlashScore Pro subscription</div>
+</div>
+
+<div class="url-bar">
+  <span id="urlText">flashscore.mobi/match/2wo</span>
+  <span>14 ↑</span>
+</div>
 
 <script>
-function getRealDateISO(o=0){const d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().split('T')[0];}
-let currentDate=getRealDateISO(0), allMatches=[], currentFilter='all';
-function buildTabs(){const c=document.getElementById('dayTabs'); let h=''; for(let i=-2;i<=2;i++){let iso=getRealDateISO(i); let label=i===0?'Today':i===-1?'Yesterday':i===1?'Tomorrow':iso.slice(5); h+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;} c.innerHTML=h; document.getElementById('dateHead').innerText='Top 10 - '+currentDate;}
-function pickDate(iso){currentDate=iso; buildTabs(); loadMatches(iso);}
-function setFilter(f){currentFilter=f; document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f)); render();}
-function isValid(v){if(v===null||v===undefined) return false; const s=String(v).trim().toLowerCase(); return s!==""&&s!=="null"&&s!=="undefined";}
-function toFranceTime(t){if(!t||!t.includes(':')) return t||'00:00'; const p=t.split(':'); let h=parseInt(p[0],10), m=parseInt(p[1],10); if(isNaN(h)) return t; h=(h+2)%24; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
+const params = new URLSearchParams(location.search);
+const home = decodeURIComponent(params.get('home') || 'Everton');
+const away = decodeURIComponent(params.get('away') || 'Chelsea');
+const date = params.get('date') || '17.10.2026';
+const id = params.get('id') || '2wo';
 
-function getScore(m){
-  const st=m.status||{}; const disp=(st.display||'').toString(); const live=st.is_live===true; const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT';
-  let hs=m.home?.score??m.home_score, as=m.away?.score??m.away_score;
-  if(!isValid(hs)) hs=null; if(!isValid(as)) as=null;
-  if(isValid(hs)&&isValid(as)){
-    if(fin) return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};
-    if(live) return {s:`${hs} - ${as}`,t:disp||'LIVE',live:true,fin:false,sched:false,ok:true};
-    return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};
-  }
-  return {s:'-',t:toFranceTime(m.kickoff||m.time||''),live:false,fin:false,sched:true,ok:true};
-}
-
-function deepFindLeague(m){
-  const L=m.League||m.league||{}; let c=(L.country||m.country||'WORLD').toString().trim(); let n=(L.name||m.league_name||'LEAGUE').toString().trim();
-  if(!c) c='WORLD'; if(!n) n='LEAGUE'; return {country:c,name:n,key:`${c.toUpperCase()}: ${n.toUpperCase()}`};
-}
-
-// ✅ TOP 10 PRIORITY - ORIGINAL ONE YOU LIKED
-function getTop10Priority(key){
-  const k=key.toUpperCase().trim();
-  if(k.includes('CAF') || k.includes('AFRICA') && k.includes('CHAMPIONS LEAGUE')) return 100;
-  if(k.includes('NORWAY') && (k.includes('U19') || k.includes('U-19') || k.includes('NATIONAL'))) return 100;
-  if(k.includes('U19') || k.includes('U-19') || k.includes('U20') || k.includes('U-20')) return 100;
-  if(k==='EUROPE: CHAMPIONS LEAGUE' || k==='EUROPE: UEFA CHAMPIONS LEAGUE' || k==='UEFA: CHAMPIONS LEAGUE' || k==='WORLD: UEFA CHAMPIONS LEAGUE' || k==='EUROPE: CHAMPIONS LEAGUE - QUALIFICATION') return 1;
-  if(k.startsWith('EUROPE:') && k.includes('CHAMPIONS LEAGUE') && !k.includes('CAF') && !k.includes('AFC')) return 1;
-  if(k==='EUROPE: EUROPA LEAGUE' || k==='EUROPE: UEFA EUROPA LEAGUE' || k==='UEFA: EUROPA LEAGUE') return 2;
-  if(k.startsWith('EUROPE:') && k.includes('EUROPA LEAGUE') && !k.includes('CONFERENCE')) return 2;
-  if(k==='EUROPE: CONFERENCE LEAGUE' || k==='EUROPE: UEFA CONFERENCE LEAGUE' || k==='EUROPE: EUROPA CONFERENCE LEAGUE') return 3;
-  if(k.startsWith('EUROPE:') && k.includes('CONFERENCE LEAGUE')) return 3;
-  if(k==='ENGLAND: PREMIER LEAGUE') return 4;
-  if(k==='FRANCE: LIGUE 1') return 5;
-  if(k==='GERMANY: BUNDESLIGA') return 6;
-  if(k==='ITALY: SERIE A') return 7;
-  if(k==='SPAIN: LALIGA' || k==='SPAIN: LA LIGA' || k.includes('SPAIN: LALIGA')) return 8;
-  if(k==='NETHERLANDS: EREDIVISIE') return 9;
-  if(k==='PORTUGAL: PRIMEIRA LIGA' || k.includes('PORTUGAL: LIGA PORTUGAL')) return 10;
-  if(k.startsWith('ENGLAND:')) return 20;
-  if(k.startsWith('FRANCE:')) return 21;
-  if(k.startsWith('GERMANY:')) return 22;
-  if(k.startsWith('ITALY:')) return 23;
-  if(k.startsWith('SPAIN:')) return 24;
-  if(k.startsWith('NETHERLANDS:')) return 25;
-  if(k.startsWith('PORTUGAL:')) return 26;
-  if(k.startsWith('EUROPE:')) return 27;
-  if(k==='WORLD: LEAGUE') return 999;
-  return 100;
-}
-
-async function loadMatches(date){
-  document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#666">Loading ${date}...</div>`;
-  try{
-    const r=await fetch(`/api/matches?date=${date}`);
-    const d=await r.json();
-    allMatches=d.data?.matches||d.matches||d.data||[];
-    if(!Array.isArray(allMatches)) allMatches=[];
-    render();
-  }catch(e){ document.getElementById('list').innerHTML='Error '+e.message; }
-}
-
-function openMatch(m){
-  const id=m.id||m.match_id||''; 
-  const home=encodeURIComponent(m.home?.name||m.home_name||'');
-  const away=encodeURIComponent(m.away?.name||m.away_name||'');
-  location.href=`/match.html?id=${id}&home=${home}&away=${away}&date=${currentDate}`;
-}
-
-function render(){
-  const q=document.getElementById('q').value.toLowerCase();
-  let filt=allMatches.filter(m=>{
-    const gs=getScore(m); if(!gs.ok) return false;
-    if(currentFilter==='live'&&!gs.live) return false;
-    if(currentFilter==='finished'&&!gs.fin) return false;
-    if(currentFilter==='scheduled'&&!gs.sched) return false;
-    if(q){const L=deepFindLeague(m);const txt=`${L.country} ${L.name} ${m.home?.name||m.home_name||''} ${m.away?.name||m.away_name||''}`.toLowerCase();if(!txt.includes(q))return false;}
-    return true;
-  });
-  const groups={}; filt.forEach(m=>{const L=deepFindLeague(m);const key=L.key;if(!groups[key])groups[key]={country:L.country,name:L.name,key,p:getTop10Priority(key),matches:[]};groups[key].matches.push(m);});
-  const sorted=Object.values(groups).sort((a,b)=>{if(a.p!==b.p) return a.p-b.p; return a.key.localeCompare(b.key);});
-  const list=document.getElementById('list');
-  if(!filt.length){ list.innerHTML=`<div style="text-align:center;padding:40px;color:#666">No matches<br><button onclick="pickDate('${getRealDateISO(-1)}')" style="background:#00d26a;color:#000;border:none;padding:10px 20px;border-radius:20px;font-weight:900;margin-top:10px">Try Yesterday</button></div>`; return; }
-  list.innerHTML=sorted.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span><span class="sep">: </span><span class="lname">${g.name.toUpperCase()}</span></div><span class="stand">Standings</span></div>${g.matches.map(m=>{
-    const gs=getScore(m);
-    return `<div class="match-row" onclick='openMatch(${JSON.stringify(m).replace(/'/g,"&#39;")})'><div class="time ${gs.live?'live':''}">${gs.t}</div><div class="teams"><div>${m.home?.name||m.home_name}</div><div>${m.away?.name||m.away_name}</div></div><div class="score ${gs.live?'live':''}">${gs.s}</div></div>`;
-  }).join('')}`).join('');
-}
-buildTabs(); loadMatches(currentDate);
-</script></body></html>
+document.getElementById('matchHead').innerHTML = `${home} - ${away} <span
