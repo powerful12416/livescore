@@ -1,123 +1,34 @@
-<!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Match Details - Flashscore Style</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;color:#000;font-family:Arial,sans-serif;font-size:13px}
-.header{background:#fff;padding:10px 12px;border-bottom:2px solid #000;display:flex;align-items:center;gap:8px}
-.logo{font-weight:900;font-size:18px} .logo span{color:#cc0000}
-.top-links{padding:8px 10px;color:#0000cc;font-size:12px;border-bottom:1px solid #ddd}
-.top-links a{color:#0000cc;text-decoration:underline}
-.match-head{background:#006600;color:#fff;padding:6px 10px;font-weight:900;font-size:13px}
-.match-head a{color:#fff;text-decoration:none}
-.score-box{padding:8px 10px;border-bottom:1px solid #ddd;line-height:18px}
-.score-box b{font-size:14px}
-.score-box .time{color:#666;font-size:12px}
-
-/* 3 ADVERT BOXES LIKE YOUR SCREENSHOT */
-.ads{display:flex;gap:8px;padding:8px 10px;overflow-x:auto;background:#f5f5f5;border-bottom:1px solid #ddd}
-.ads::-webkit-scrollbar{display:none}
-.ad-card{min-width:140px;max-width:140px;background:#e6f2ff;border:1px solid #c5d9f0;border-radius:6px;padding:8px;font-size:11px;line-height:14px}
-.ad-card a{color:#cc0000;text-decoration:underline;font-weight:700}
-.ad-label{padding:4px 10px;color:#888;font-size:11px}
-
-.tabs{padding:8px 10px;border-bottom:1px solid #000;display:flex;flex-wrap:wrap;gap:4px}
-.tabs a{color:#0000cc;text-decoration:underline;font-weight:700;font-size:12px}
-.tabs a.active{color:#000;text-decoration:none;font-weight:900}
-
-.section-head{background:#000;color:#fff;padding:5px 10px;font-weight:900;font-size:12px;margin-top:4px}
-.events{padding:6px 10px;line-height:20px;font-size:12px}
-.events div{border-bottom:1px dotted #eee}
-.odds-head{background:#cc0000;color:#fff;padding:5px 10px;font-weight:900;margin-top:8px;font-size:12px}
-.odds-box{padding:8px 10px;border-bottom:1px solid #ddd}
-.odds-box a{color:#0000cc}
-.odds-values{color:#0000cc;text-decoration:underline}
-.refresh{padding:8px 10px;color:#0000cc;text-decoration:underline;font-size:12px;border-top:1px solid #000;border-bottom:1px solid #000;margin-top:10px;display:block}
-.bottom-nav{padding:8px 10px}
-.bottom-nav a{color:#0000cc;text-decoration:underline;font-size:12px}
-.pills{display:flex;flex-wrap:wrap;gap:8px;padding:10px;justify-content:center}
-.pill{border:1px solid #ccc;border-radius:20px;padding:8px 14px;background:#f0f0f0;font-size:12px;color:#333}
-.pill b{margin-right:4px}
-.url-bar{background:#333;color:#fff;padding:8px 10px;border-radius:20px;margin:10px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
-</style>
-</head><body>
-
-<div class="header"><div class="logo">⚡ FLASHSCORE</div></div>
-<a href="/" class="top-links" style="display:block">REFRESH NOW</a>
-
-<div class="match-head" id="matchHead">Everton - Chelsea</div>
-<div class="score-box" id="scoreBox">
-<b>0-0</b> (0-0)<br>
-Half Time<br>
-<span class="time" id="matchTime">17.10.2026 13:30</span>
-</div>
-
-<!-- 3 ADVERTS LIKE YOUR SCREENSHOT -->
-<div class="ads">
-  <div class="ad-card">
-    <a href="https://www.bet9ja.com" target="_blank">50% stake back as a Sports Freebet on UCL games</a>
-  </div>
-  <div class="ad-card">
-    🎁 <a href="#" target="_blank">1XBET: 300% deposit bonus! If you deposit NGN 170,001 or more, you'll get a 300%...</a>
-  </div>
-  <div class="ad-card">
-    🎁 <a href="#" target="_blank">BETANO: Welcome Bonus up to ₦200,000</a>
-  </div>
-</div>
-<div class="ad-label">Advertisement</div>
-
-<div class="tabs">
-  <a href="#" class="active">Summary</a> | 
-  <a href="#">Lineups</a> | 
-  <a href="#">Stats</a> | 
-  <a href="#">Commentary</a> | 
-  <a href="#">Standings</a> | 
-  <a href="#">H2H</a>
-</div>
-
-<div class="section-head" id="halfHead">1st Half: 0-0</div>
-<div class="events" id="events">
-  <div>23' &nbsp; Armstrong H. [EVE]</div>
-  <div>27' &nbsp; Neto P. [CHE]</div>
-  <div>32' &nbsp; Acheampong J. [CHE]</div>
-  <div>34' &nbsp; Tarkowski J. [EVE]</div>
-  <div>34' &nbsp; Rogers M. [CHE]</div>
-</div>
-
-<div class="odds-head">Odds</div>
-<div class="odds-box">
-  <span class="odds-values">3.11 | 3.56 | 2.28</span><br><br>
-  <a href="#" style="font-weight:900">Bet on this match now LIVE! <span style="background:#ffff00;padding:1px 3px">L</span></a><br><br>
-  <small>Odds provided by 1xBet - <a href="#" style="color:#cc0000">Bet now!</a></small>
-</div>
-
-<a href="/" class="refresh">REFRESH NOW</a>
-
-<div class="bottom-nav">
-  <a href="javascript:history.back()">Back</a> | <a href="#">Top</a>
-  <div style="float:right">▼</div>
-</div>
-
-<div class="pills">
-  <div class="pill">Discover more</div>
-  <div class="pill">📄 Track Live Scores</div>
-  <div class="pill">📄 Stream Soccer</div>
-  <div class="pill">📄 Train Managers</div>
-  <div class="pill">📄 Stats</div>
-  <div class="pill">📄 Deportes en vivo</div>
-  <div class="pill">📄 FlashScore Pro subscription</div>
-</div>
-
-<div class="url-bar">
-  <span id="urlText">flashscore.mobi/match/2wo</span>
-  <span>14 ↑</span>
-</div>
-
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Match</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;color:#000;font-family:Arial;font-size:13px}
+.header{background:#fff;padding:10px;border-bottom:2px solid #000;font-weight:900}
+.match-head{background:#006600;color:#fff;padding:6px 10px;font-weight:900}
+.score-box{padding:10px;border-bottom:1px solid #ddd}
+.ads{display:flex;gap:8px;padding:8px;overflow-x:auto;background:#f5f5f5}
+.ad-card{min-width:130px;background:#e6f2ff;border:1px solid #c5d9f0;border-radius:6px;padding:8px;font-size:11px}
+.tabs{padding:8px;border-bottom:1px solid #000}
+.tabs a{color:#0000cc;text-decoration:underline;font-weight:700}
+.section-head{background:#000;color:#fff;padding:5px 10px;font-weight:900}
+</style></head><body>
+<div class="header">⚡ FLASHSCORE</div>
+<a href="/" style="padding:8px;display:block;color:#0000cc">REFRESH NOW</a>
+<div class="match-head" id="mh">Loading...</div>
+<div class="score-box" id="sb"></div>
+<div class="ads"><div class="ad-card"><a href="#">50% stake back as Freebet on UCL</a></div><div class="ad-card">🎁 <a href="#">1XBET: 300% deposit bonus...</a></div><div class="ad-card">🎁 <a href="#">BETANO Bonus up to ₦200k</a></div></div>
+<div class="tabs"><a href="#">Summary</a> | <a href="#">Lineups</a> | <a href="#">Stats</a> | <a href="#">H2H</a></div>
+<div class="section-head">1st Half</div><div id="events" style="padding:8px">Loading HT/FT data...</div>
 <script>
-const params = new URLSearchParams(location.search);
-const home = decodeURIComponent(params.get('home') || 'Everton');
-const away = decodeURIComponent(params.get('away') || 'Chelsea');
-const date = params.get('date') || '17.10.2026';
-const id = params.get('id') || '2wo';
-
-document.getElementById('matchHead').innerHTML = `${home} - ${away} <span
+const p=new URLSearchParams(location.search);
+try{
+  const m=JSON.parse(decodeURIComponent(p.get('data')||'{}'));
+  const home=m.home?.name||m.home_name||'Everton';
+  const away=m.away?.name||m.away_name||'Chelsea';
+  const hs=m.home_score??m.home?.score??0, as=m.away_score??m.away?.score??0;
+  const hhs=m.home_score_ht??0, ahs=m.away_score_ht??0;
+  document.getElementById('mh').innerText=home+' - '+away;
+  document.getElementById('sb').innerHTML=`<b>${hs}-${as} (${hhs}-${ahs})</b><br>${m.status||'Half Time'}<br>${p.get('date')||''} 13:30`;
+  document.getElementById('events').innerHTML=`FT: ${hs}-${as}<br>HT: ${hhs}-${ahs}<br><br>${home} vs ${away} stats loading...`;
+}catch(e){
+  document.getElementById('mh').innerText='Everton - Chelsea';
+  document.getElementById('sb').innerHTML='<b>0-0 (0-0)</b><br>Half Time<br>17.10.2026 13:30';
+}
+</script></body></html>
