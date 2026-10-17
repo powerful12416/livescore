@@ -31,7 +31,6 @@ let currentDate=getFranceDateISO(0),allMatches=[],currentFilter='all';
 function buildTabs(){const c=document.getElementById('dayTabs');let h='';for(let i=-2;i<=2;i++){let iso=getFranceDateISO(i);let label=i===0?'Today':i===-1?'Yesterday':i===1?'Tomorrow':iso.slice(5);h+=`<button class="tab ${iso===currentDate?'active':''}" onclick="pickDate('${iso}')">${label}</button>`;}c.innerHTML=h;document.getElementById('dateHead').innerText='France '+currentDate;}
 function pickDate(iso){currentDate=iso;buildTabs();loadMatches(iso);}function setFilter(f){currentFilter=f;document.querySelectorAll('.f').forEach(b=>b.classList.toggle('active',b.dataset.f===f));render();}
 function isValid(v){if(v===null||v===undefined) return false;const s=String(v).trim().toLowerCase();return s!==""&&s!=="null"&&s!=="undefined";}
-function toFranceTime(t){if(!t||!t.includes(':')) return t||'00:00';const p=t.split(':');let h=parseInt(p[0],10),m=parseInt(p[1],10);if(isNaN(h)) return t;h=(h+2)%24;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
 
 function getScore(m){
   const st=m.status||{};const disp=(st.display||'').toString();const live=st.is_live===true;const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT'||disp==='HT';
