@@ -1,10 +1,10 @@
 export async function onRequestGet(context) {
-  const key = context.env.FOOTBALL_API_KEY;
+  const key = context.env.FOOTBALL_API_KEY || context.env.LIVE_FOOTBALL_API_KEY;
   const url = new URL(context.request.url);
   const date = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
 
   if (!key) {
-    return new Response(JSON.stringify({ data: { matches: [] }, error: "FOOTBALL_API_KEY NOT SET IN CLOUDFLARE" }), {
+    return new Response(JSON.stringify({ data: { matches: [] }, error: "NO API KEY - Set FOOTBALL_API_KEY or LIVE_FOOTBALL_API_KEY in Cloudflare" }), {
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
     });
   }
@@ -28,14 +28,9 @@ export async function onRequestGet(context) {
       if(ftH===0 && ftA===0){ ftH = Number(m.home_score||0); ftA = Number(m.away_score||0); }
       return {
         id: m.id || i,
-        kickoff: m.date || `${date}T15:00:00Z`,
+        kickoff: m.date,
         status: { status: "finished", display: "FT", short: "FT" },
-        score: {
-          halftime: { home: htH, away: htA },
-          fulltime: { home: ftH, away: ftA },
-          ht: { home: htH, away: htA },
-          ft: { home: ftH, away: ftA }
-        },
+        score: { halftime: { home: htH, away: htA }, fulltime: { home: ftH, away: ftA }, ht: { home: htH, away: htA }, ft: { home: ftH, away: ftA } },
         home: { name: m.home_team, score: ftH, ht_score: htH },
         away: { name: m.away_team, score: ftA, ht_score: htA },
         ht: { home: htH, away: htA },
