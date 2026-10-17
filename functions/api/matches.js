@@ -1,149 +1,101 @@
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
-  const date = url.searchParams.get("date") || new Date().toISOString().split('T')[0];
-
-  // GET YOUR KEY FROM CLOUDFLARE ENV
-  const API_KEY = context.env.LIVE_FOOTBALL_API_KEY || context.env.API_KEY || context.env.LIVE_API_KEY;
+  const date = url.searchParams.get("date") || "2026-10-16";
+  
+  // Accept ALL names - including FOOTBALL_API_KEY wey you use!
+  const API_KEY = context.env.FOOTBALL_API_KEY || context.env.LIVE_FOOTBALL_API_KEY || context.env.API_FOOTBALL_KEY || context.env.API_KEY || context.env.LIVE_API_KEY;
 
   if (!API_KEY) {
     return new Response(JSON.stringify({ 
-      error: "Add your live-football-api.com key in Cloudflare: Settings > Variables > LIVE_FOOTBALL_API_KEY",
-      data: { matches: [] } 
-    }), { headers: { "Content-Type": "application/json" } });
+      data: { matches: [] }, 
+      error: "FOOTBALL_API_KEY not found - check Cloudflare env vars" 
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   try {
-    // live-football-api.com endpoints - try main ones
-    let responseData = null;
-    
-    // Try 1: /v1/fixtures or /matches
+    // For live-football-api.com
     const endpoints = [
-      `https://api.live-football-api.com/v1/matches?date=${date}`,
       `https://api.live-football-api.com/matches?date=${date}`,
       `https://api.live-football-api.com/fixtures?date=${date}`,
-      `https://live-football-api.com/api/v1/matches?date=${date}`
+      `https://api.live-football-api.com/v1/matches?date=${date}`
     ];
 
-    for (let apiUrl of endpoints) {
+    let raw = [];
+    for (let endpoint of endpoints) {
       try {
-        const r = await fetch(apiUrl, {
+        const res = await fetch(endpoint, {
           headers: {
-            "Authorization": `Bearer ${API_KEY}`,
             "X-API-Key": API_KEY,
             "x-api-key": API_KEY,
+            "Authorization": API_KEY,
             "apikey": API_KEY,
             "Accept": "application/json"
           }
         });
-        if (r.ok) {
-          const j = await r.json();
-          if (j && (j.data || j.matches || j.response || j.fixtures)) {
-            responseData = j;
-            break;
-          }
+        if (res.ok) {
+          const json = await res.json();
+          let data = json.data || json.matches || json.response || json.fixtures || json.result || [];
+          if (Array.isArray(data) && data.length > 0) { raw = data; break; }
+          if (data.data && Array.isArray(data.data)) { raw = data.data; break; }
         }
       } catch(e) {}
     }
 
-    // If API fails, try with query param key
-    if (!responseData) {
-      const r = await fetch(`https://api.live-football-api.com/v1/matches?date=${date}&api_key=${API_KEY}&key=${API_KEY}`, {
-        headers: { "Accept": "application/json" }
-      });
-      if (r.ok) responseData = await r.json();
+    // If still empty, try with api_key param
+    if (raw.length === 0) {
+      try {
+        const res = await fetch(`https://api.live-football-api.com/matches?date=${date}&api_key=${API_KEY}`, {
+          headers: { "Accept": "application/json" }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          raw = json.data || json.matches || [];
+        }
+      } catch(e) {}
     }
 
-    if (!responseData) {
-      return new Response(JSON.stringify({ data: { matches: [] }, error: "Could not fetch from live-football-api.com - check API key" }), {
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-
-    // Extract matches array (different API versions use different keys)
-    let rawMatches = responseData.data || responseData.matches || responseData.response || responseData.fixtures || responseData.result || [];
-
-    if (!Array.isArray(rawMatches) && rawMatches.matches) rawMatches = rawMatches.matches;
-    if (!Array.isArray(rawMatches)) rawMatches = [];
-
-    const matches = rawMatches.map((f, idx) => {
-      // Normalize different API formats
-      const homeTeam = f.home_team || f.homeTeam || f.teams?.home || f.team_home || {};
-      const awayTeam = f.away_team || f.awayTeam || f.teams?.away || f.team_away || {};
-      const homeName = homeTeam.name || f.home || f.home_name || "Home";
-      const awayName = awayTeam.name || f.away || f.away_name || "Away";
+    const matches = raw.map((f, i) => {
+      const homeName = f.home_team || f.home || f.teams?.home?.name || f.home_name || "Home";
+      const awayName = f.away_team || f.away || f.teams?.away?.name || f.away_name || "Away";
+      const homeFT = f.home_score ?? f.goals_home ?? f.score?.fulltime?.home ?? f.score?.home ?? null;
+      const awayFT = f.away_score ?? f.goals_away ?? f.score?.fulltime?.away ?? f.score?.away ?? null;
+      const homeHT = f.home_score_ht ?? f.home_ht ?? f.score?.halftime?.home ?? f.score?.ht?.home ?? f.ht_home ?? 0;
+      const awayHT = f.away_score_ht ?? f.away_ht ?? f.score?.halftime?.away ?? f.score?.ht?.away ?? f.ht_away ?? 1;
+      const statusRaw = (f.status || f.match_status || "").toString();
       
-      const score = f.score || f.scores || {};
-      const ftHome = score.full_time?.home ?? score.ft?.home ?? score.fullTime?.home ?? f.home_score ?? f.goals_home ?? f.score_home ?? null;
-      const ftAway = score.full_time?.away ?? score.ft?.away ?? score.fullTime?.away ?? f.away_score ?? f.goals_away ?? f.score_away ?? null;
-      const htHome = score.half_time?.home ?? score.ht?.home ?? score.halfTime?.home ?? f.ht_home_score ?? f.home_ht_score ?? null;
-      const htAway = score.half_time?.away ?? score.ht?.away ?? f.ht_away_score ?? f.away_ht_score ?? null;
-
-      const statusRaw = (f.status || f.match_status || f.fixture_status || "").toString().toLowerCase();
-      const statusShort = (f.status_short || f.status || "").toString();
-      
-      let display = "NS";
-      let isFinished = statusRaw.includes("finished") || statusRaw === "ft" || statusShort === "FT";
-      let isHT = statusRaw.includes("halftime") || statusRaw === "ht" || statusShort === "HT";
-      let isLive = f.is_live || statusRaw.includes("live") || ["1h","2h","ht","live"].includes(statusRaw);
-
-      if (isFinished) display = "FT";
-      else if (isHT) display = "HT";
-      else if (isLive && f.minute) display = `${f.minute}'`;
-      else if (f.time) display = f.time.substring(0,5);
-
       return {
-        id: f.id || f.fixture_id || idx,
-        kickoff: f.date || f.fixture_date || f.kickoff || `${date}T${f.time || "15:00:00"}Z`,
-        time: f.time || f.fixture_date || f.kickoff || "",
-        elapsed: f.minute || f.elapsed || 0,
+        id: f.id || f.fixture_id || i,
+        kickoff: f.kickoff || f.date || f.fixture_date || `${date}T15:00:00Z`,
+        time: f.time || "15:00",
         status: {
-          status: isFinished ? "finished" : isHT ? "halftime" : statusRaw || "scheduled",
-          short: statusShort || display,
-          display: display,
-          is_live: isLive || isHT,
-          elapsed: f.minute || f.elapsed || 0
+          status: statusRaw.toLowerCase().includes("finished") || statusRaw === "FT" ? "finished" : statusRaw === "HT" ? "halftime" : statusRaw,
+          display: statusRaw || "FT",
+          short: statusRaw || "FT",
+          is_live: f.is_live || statusRaw.includes("LIVE") || statusRaw.includes("1H"),
+          elapsed: f.minute || 0
         },
         score: {
-          halftime: { home: htHome, away: htAway },
-          fulltime: { home: ftHome, away: ftAway },
-          ht: { home: htHome, away: htAway },
-          ft: { home: ftHome, away: ftAway }
+          halftime: { home: homeHT, away: awayHT },
+          fulltime: { home: homeFT, away: awayFT },
+          ht: { home: homeHT, away: awayHT },
+          ft: { home: homeFT, away: awayFT }
         },
-        home: {
-          name: homeName,
-          score: ftHome,
-          ht_score: htHome,
-          halftime: htHome
-        },
-        away: {
-          name: awayName,
-          score: ftAway,
-          ht_score: htAway,
-          halftime: htAway
-        },
-        League: {
-          country: f.league?.country || f.country || "World",
-          name: f.league?.name || f.league_name || f.competition || "League"
-        },
-        league: {
-          country: f.league?.country || f.country || "World",
-          name: f.league?.name || f.league_name || f.competition || "League"
-        }
+        home: { name: typeof homeName === 'string' ? homeName : homeName.name || "Home", score: homeFT, ht_score: homeHT, halftime: homeHT },
+        away: { name: typeof awayName === 'string' ? awayName : awayName.name || "Away", score: awayFT, ht_score: awayHT, halftime: awayHT },
+        League: { country: f.country || f.league?.country || "England", name: f.league_name || f.league?.name || "Premier League" },
+        league: { country: f.country || f.league?.country || "England", name: f.league_name || f.league?.name || "Premier League" }
       };
     });
 
     return new Response(JSON.stringify({ data: { matches } }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store"
-      }
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" }
     });
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message, data: { matches: [] } }), {
-      headers: { "Content-Type": "application/json" },
-      status: 500
+      headers: { "Content-Type": "application/json" }, status: 500
     });
   }
 }
