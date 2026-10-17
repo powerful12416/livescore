@@ -30,18 +30,6 @@ function deepFindLeague(m){
   if(!c) c='WORLD'; if(!n) n='LEAGUE';
   let key=`${c.toUpperCase()}: ${n.toUpperCase()}`;
   const home=(m.home?.name||'').toLowerCase(); const away=(m.away?.name||'').toLowerCase();
-  
-  // FIX: Hull City, Ipswich etc na Championship, no be Premier League for 2026-10-17
-  const championshipTeams=['hull city','hull','ipswich','blackburn','preston','swansea','stoke','millwall','qpr','sheffield wed','norwich','watford','middlesbrough','coventry'];
-  const isChampionshipTeam=championshipTeams.some(t=>home.includes(t) || away.includes(t));
-  if(key==='ENGLAND: PREMIER LEAGUE' && isChampionshipTeam){
-    c='ENGLAND'; n='CHAMPIONSHIP'; key='ENGLAND: CHAMPIONSHIP';
-  }
-  
-  return {country:c,name:n,key};
-}
-
-// TOP 10 - CAF + NORWAY U19 REMOVED
 function getTop10Priority(key){
   const k=key.toUpperCase().trim();
   // REMOVE CAF AND NORWAY U19 FROM TOP 10
