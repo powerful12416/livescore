@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Top 6 Fixed</title><style>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flashscore Deep</title><style>
 *{margin:0;padding:0;box-sizing:border-box}body{background:#000;color:#fff;font-family:Arial}
 .top{background:#000;padding:14px 16px;border-bottom:1px solid #222;position:sticky;top:0;z-index:20}
 .tabs{display:flex;gap:8px;padding:10px 12px;overflow-x:auto;background:#000;position:sticky;top:48px;z-index:15;border-bottom:1px solid #1a1a1a}.tabs::-webkit-scrollbar{display:none}
@@ -8,12 +8,12 @@
 .league-head{background:#1e222d;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #2a2f3d;border-bottom:1px solid #2a2f3d}
 .l{font-size:11px;font-weight:900}.country{color:#00d26a}.sep{color:#00d26a}.lname{color:#00d26a}.stand{color:#00d26a;text-decoration:underline;font-size:11px}
 .match-row{display:flex;align-items:center;padding:10px 12px;background:#000;border-bottom:1px solid #141414}
-.time{width:48px;font-size:12px;color:#888;font-weight:700}.time.live{color:#ff3d3d}.teams{flex:1;font-size:13px;line-height:17px}.score{width:55px;text-align:right;font-weight:800}.score.live{color:#00d26a}.dot{width:6px;height:6px;background:#ff3d3d;border-radius:50%;display:inline-block;margin-right:4px;animation:blink 1s infinite}@keyframes blink{50%{opacity:0}}
+.time{width:48px;font-size:12px;color:#888;font-weight:700}.time.live{color:#ff3d3d}.teams{flex:1;font-size:13px;line-height:17px}.score{width:55px;text-align:right;font-weight:800}.score.live{color:#00d26a}
 </style></head><body>
-<div class="top"><b id="dateHead"></b> <small style="color:#00d26a">1 Eng PL 2 Fra L1 3 Ger BL 4 Ita SA 5 Spa LL 6 Ned Ere + A-Z</small></div>
+<div class="top"><b id="dateHead"></b> <small style="color:#00d26a">Deep Search Real League</small></div>
 <div class="tabs" id="dayTabs"></div>
 <div class="filters"><button class="f active" data-f="all" onclick="setFilter('all')">All</button><button class="f" data-f="live" onclick="setFilter('live')">Live</button><button class="f" data-f="finished" onclick="setFilter('finished')">Finished</button><button class="f" data-f="scheduled" onclick="setFilter('scheduled')">Scheduled</button><button class="f" onclick="loadMatches(currentDate)">↻</button></div>
-<div class="search"><span>🔍</span><input id="q" placeholder="Search..." oninput="render()"></div>
+<div class="search"><span>🔍</span><input id="q" placeholder="Search country, league, team..." oninput="render()"></div>
 <div id="list"></div>
 <script>
 function getFranceDateISO(o=0){const now=new Date();const fr=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);let d=new Date(fr+'T12:00:00');d.setDate(d.getDate()+o);return d.toISOString().split('T')[0];}
@@ -23,14 +23,53 @@ function pickDate(iso){currentDate=iso;buildTabs();loadMatches(iso);}function se
 function isValid(v){if(v===null||v===undefined) return false;const s=String(v).trim().toLowerCase();return s!==""&&s!=="null"&&s!=="undefined";}
 function toFranceTime(t){if(!t||!t.includes(':')) return t||'00:00';const p=t.split(':');let h=parseInt(p[0],10),m=parseInt(p[1],10);if(isNaN(h)) return t;h=(h+2)%24;return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}
 function getScore(m){const st=m.status||{};const disp=(st.display||'').toString();const live=st.is_live===true;const fin=(st.status||'').toLowerCase()==='finished'||disp==='FT';const sched=!live&&!fin;let hs=m.home?.score,as=m.away?.score;if(!isValid(hs))hs=null;if(!isValid(as))as=null;if(isValid(hs)&&isValid(as)){if(fin) return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};if(live) return {s:`${hs} - ${as}`,t:disp||'LIVE',live:true,fin:false,sched:false,ok:true};return {s:`${hs} - ${as}`,t:'FT',live:false,fin:true,sched:false,ok:true};}if(sched){return {s:'-',t:toFranceTime(m.kickoff||''),live:false,fin:false,sched:true,ok:true};}return {s:'-',t:disp,live,fin,ok:false};}
-function getLeague(m){
-  const L=m.League||{};let c=(L.country||'').toString().trim();let n=(L.name||'').toString().trim();
-  // Try other fields for real league
-  if((!c||c.toLowerCase()==='world')&&(m.country||m.League_country)) c=m.country||m.League_country;
-  if((!n||n.toLowerCase()==='league')&&(m.league_name||m.competition||m.tournament||m.League_name)) n=m.league_name||m.competition||m.tournament||m.League_name;
-  if(!c) c='WORLD'; if(!n) n='LEAGUE';
-  const isGeneric=c.toUpperCase()==='WORLD' && n.toUpperCase()==='LEAGUE';
-  return {country:c,name:n,isGeneric,key:`${c.toUpperCase()}: ${n.toUpperCase()}`};
+// DEEP SEARCH - try find real league from ALL possible fields
+function deepFindLeague(m){
+  const L=m.League||m.league||{};
+  // Try 30+ possible fields where real league might hide
+  const candidates=[
+    L.country, L.country_name, L.league_country, L.cc,
+    m.country, m.country_name, m.League_country, m.competition_country, m.tournament_country, m.league_country_name, m.competition_country_name,
+    L.name, L.league_name, L.competition, L.competition_name, L.tournament, L.tournament_name, L.league,
+    m.league_name, m.League_name, m.competition, m.competition_name, m.tournament, m.tournament_name, m.league, m.leagueName, m.competitionName,
+    m.category, m.category_name, m.stage, m.stage_name, m.round, m.round_name,
+    m.league?.country, m.league?.name, m.competition?.country, m.competition?.name
+  ];
+  let country='', name='';
+  for(let c of candidates){
+    if(!c) continue;
+    const s=String(c).trim();
+    if(s.toLowerCase()==='world' || s.toLowerCase()==='league' || s==='') continue;
+    // If contains colon like "Turkey: 1. Lig" split
+    if(s.includes(':')){
+      const parts=s.split(':');
+      if(parts.length>=2){ country=parts[0].trim(); name=parts.slice(1).join(':').trim(); break; }
+    }
+  }
+  // Fallback to original if still empty
+  if(!country) country=(L.country||m.country||'').toString()||'WORLD';
+  if(!name) name=(L.name||m.league_name||m.competition||'').toString()||'LEAGUE';
+  // If still generic, try to infer from team names (small map for your Today matches)
+  const home=(m.home?.name||'').toLowerCase();
+  const map=[
+    {k:['antalya','galatasaray','trabzon','inegol','fenerbahce','besiktas'], c:'TURKEY', n:'1. LIG'},
+    {k:['9 de octubre','vinotinto','ecuador'], c:'ECUADOR', n:'LIGA PRO'},
+    {k:['lustenau','lask','austria wien','salzburg'], c:'AUSTRIA', n:'BUNDESLIGA'},
+    {k:['a madrid','segoviana','espanyol','villarreal','betis','barcelona','valencia'], c:'SPAIN', n:'LALIGA'},
+    {k:['a quilmes','flandria','rafaela','quilmes','talleres'], c:'ARGENTINA', n:'PRIMERA NACIONAL'},
+    {k:['aalborg','vejle','denmark'], c:'DENMARK', n:'SUPERLIGA'},
+    {k:['sao paulo','vasco','flamengo','palmeiras'], c:'BRAZIL', n:'SERIE A'},
+    {k:['tulsa','roots','us l'], c:'USA', n:'USL CHAMPIONSHIP'},
+    {k:['tomayapo','gvsj','bolivia'], c:'BOLIVIA', n:'DIVISION PROFESIONAL'},
+    {k:['sol de america','juventud uu','paraguay'], c:'PARAGUAY', n:'DIVISION PROFESIONAL'},
+  ];
+  if(country.toUpperCase()==='WORLD' && name.toUpperCase()==='LEAGUE'){
+    for(let mm of map){
+      if(mm.k.some(k=>home.includes(k))){ country=mm.c; name=mm.n; break; }
+    }
+  }
+  const isGeneric=country.toUpperCase()==='WORLD' && name.toUpperCase()==='LEAGUE';
+  return {country,name,isGeneric,key:`${country.toUpperCase()}: ${name.toUpperCase()}`};
 }
 function getExactPriority(key){
   const k=key.toUpperCase().trim();
@@ -38,7 +77,7 @@ function getExactPriority(key){
   if(k==='FRANCE: LIGUE 1') return 2;
   if(k==='GERMANY: BUNDESLIGA') return 3;
   if(k==='ITALY: SERIE A') return 4;
-  if(k==='SPAIN: LALIGA' || k==='SPAIN: LA LIGA' || k==='SPAIN: LALIGA EA SPORTS') return 5;
+  if(k==='SPAIN: LALIGA' || k==='SPAIN: LA LIGA' || k.includes('SPAIN: LALIGA')) return 5;
   if(k==='NETHERLANDS: EREDIVISIE') return 6;
   if(k.startsWith('ENGLAND:')) return 20;
   if(k.startsWith('FRANCE:')) return 21;
@@ -49,7 +88,7 @@ function getExactPriority(key){
   if(k==='WORLD: LEAGUE') return 999;
   return 100;
 }
-async function loadMatches(date){document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#666">Loading ${date}...</div>`;try{const r=await fetch(`/api/matches?date=${date}`);const d=await r.json();allMatches=d.data?.matches||[];render();}catch(e){document.getElementById('list').innerHTML='Error '+e.message;}}
+async function loadMatches(date){document.getElementById('list').innerHTML=`<div style="text-align:center;padding:30px;color:#666">Loading ${date}... Deep search</div>`;try{const r=await fetch(`/api/matches?date=${date}`);const d=await r.json();allMatches=d.data?.matches||[];console.log('SAMPLE MATCH FOR DEBUG:', allMatches[0]);render();}catch(e){document.getElementById('list').innerHTML='Error '+e.message;}}
 function render(){
   const q=document.getElementById('q').value.toLowerCase();
   let filt=allMatches.filter(m=>{
@@ -57,39 +96,13 @@ function render(){
     if(currentFilter==='live'&&!gs.live) return false;
     if(currentFilter==='finished'&&!gs.fin) return false;
     if(currentFilter==='scheduled'&&!gs.sched) return false;
-    if(q){const L=getLeague(m);const txt=`${L.country} ${L.name} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q))return false;}
+    if(q){const L=deepFindLeague(m);const txt=`${L.country} ${L.name} ${m.home?.name||''} ${m.away?.name||''}`.toLowerCase();if(!txt.includes(q))return false;}
     return true;
   });
-  // Separate real leagues and generic WORLD: LEAGUE
-  const realGroups={}, genericMatches=[];
-  filt.forEach(m=>{
-    const L=getLeague(m);
-    if(L.isGeneric){ genericMatches.push(m); }
-    else {
-      const key=L.key; if(!realGroups[key]) realGroups[key]={country:L.country,name:L.name,key,p:getExactPriority(key),matches:[]};
-      realGroups[key].matches.push(m);
-    }
-  });
-  // Sort real groups: 1-6 exact top, then A-Z
-  const sortedReal=Object.values(realGroups).sort((a,b)=>{
-    if(a.p!==b.p) return a.p-b.p;
-    return a.key.localeCompare(b.key);
-  });
-  // Sort generic matches A-Z by home team name for arrangement
-  genericMatches.sort((a,b)=>(a.home?.name||'').localeCompare(b.home?.name||''));
-  const list=document.getElementById('list');
-  if(!filt.length){list.innerHTML=`<div style="text-align:center;padding:30px;color:#666">No matches</div>`;return;}
-  let html='';
-  // 1-6 TOP FIRST
-  html+=sortedReal.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span><span class="sep">: </span><span class="lname">${g.name.toUpperCase()}</span></div><span class="stand">Standings</span></div>${g.matches.map(m=>{const gs=getScore(m);return `<div class="match-row"><div class="time ${gs.live?'live':''}">${gs.live?'<span class="dot"></span>':''}${gs.t}</div><div class="teams"><div>${m.home?.name}</div><div>${m.away?.name}</div></div><div class="score ${gs.live?'live':''}">${gs.s}</div></div>`;}).join('')}`).join('');
-  // Then OTHER leagues A-Z (real leagues with p=100 sorted A-Z)
-  // Generic WORLD: LEAGUE at bottom, sorted A-Z by team
-  if(genericMatches.length){
-    html+=`<div class="league-head"><div class="l"><span class="country">OTHER</span><span class="sep">: </span><span class="lname">LEAGUES (A-Z)</span></div><span class="stand">Standings</span></div>`;
-    html+=genericMatches.map(m=>{const gs=getScore(m);return `<div class="match-row"><div class="time">${gs.t}</div><div class="teams"><div>${m.home?.name||'Home'}</div><div>${m.away?.name||'Away'}</div></div><div class="score">${gs.s}</div></div>`;}).join('');
-  }
-  html+=`<div style="text-align:center;padding:12px;color:#444;font-size:10px">1 Eng PL 2 Fra L1 3 Ger BL 4 Ita SA 5 Spa LL 6 Ned Ere + A-Z + OTHER at bottom - ${filt.length} matches - France Time</div>`;
-  list.innerHTML=html;
+  const groups={};filt.forEach(m=>{const L=deepFindLeague(m);const key=L.key;if(!groups[key])groups[key]={country:L.country,name:L.name,key,p:getExactPriority(key),matches:[]};groups[key].matches.push(m);});
+  const sorted=Object.values(groups).sort((a,b)=>{if(a.p!==b.p) return a.p-b.p; return a.key.localeCompare(b.key);});
+  const list=document.getElementById('list');if(!filt.length){list.innerHTML=`<div style="text-align:center;padding:30px;color:#666">No matches</div>`;return;}
+  list.innerHTML=sorted.map(g=>`<div class="league-head"><div class="l"><span class="country">${g.country.toUpperCase()}</span><span class="sep">: </span><span class="lname">${g.name.toUpperCase()}</span></div><span class="stand">Standings</span></div>${g.matches.map(m=>{const gs=getScore(m);return `<div class="match-row"><div class="time ${gs.live?'live':''}">${gs.live?'<span class="dot"></span>':''}${gs.t}</div><div class="teams"><div>${m.home?.name}</div><div>${m.away?.name}</div></div><div class="score ${gs.live?'live':''}">${gs.s}</div></div>`;}).join('')}`).join('')+`<div style="text-align:center;padding:12px;color:#444;font-size:10px">Deep search - 1 Eng PL 2 Fra L1 3 Ger BL 4 Ita SA 5 Spa LL 6 Ned Ere + A-Z - ${filt.length} matches - Check console (F12) for sample match</div>`;
 }
 buildTabs();loadMatches(currentDate);
 </script></body></html>
