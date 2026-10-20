@@ -1,9 +1,9 @@
 export async function onRequest(context){
-  try{
-    const url = new URL(context.request.url);
+  try {
+    let url = new URL(context.request.url);
     let date = url.searchParams.get("date");
-    if(!date) date = new Date().toISOString().split('T')[0];
-    
+    if(!date) date = new Date().toISOString().split("T")[0];
+
     const KEY = context.env.FOOTBALL_API_KEY;
     if(!KEY){
       return new Response(JSON.stringify([]),{
@@ -11,26 +11,51 @@ export async function onRequest(context){
       });
     }
 
-    // Your API provider
     const apiUrl = `https://www.live-football-api.com/api/v1/matches?api_key=${KEY}&date=${date}&lang=en`;
     const r = await fetch(apiUrl);
-    const j = await r.json();
+    const d = await r.json();
     
-    const raw = j.data || j.matches || j.result || [];
-    
-    // Normalize to clean format your beautiful frontend needs
-    const clean = raw.map(m=>({
-      league: m.league?.name || m.competition || m.leagueName || 'League',
-      home: m.home_team || m.homeTeam?.name || m.home || m.teams?.home || 'Home',
-      away: m.away_team || m.awayTeam?.name || m.away || m.teams?.away || 'Away',
-      time: m.date || m.start_time || m.time || m.kickoff || date,
-      status: m.status || m.state || m.match_status || 'FT',
-      score: m.score || m.ft_score || (m.home_score!=null?`${m.home_score} - ${m.away_score}`:'0 - 0'),
-      ht: m.ht_score || m.half_time || m.scoreHT || m.ht || '',
-      ft: m.ft_score || m.score || '',
-      homeScore: m.home_score,
-      awayScore: m.away_score
-    }));
+    const raw = d.data || d.matches || d.result || [];
+
+    // Normalize - NOW WITH HT SUPPORT
+    const clean = raw.map((m)=>{
+      // Try every possible HT field that API might send
+      const htHome = m.home_score_ht ?? m.home_ht ?? m.ht_home ?? m.halftime_home ?? null;
+      const htAway = m.away_score_ht ?? m.away_ht ?? m.ht_away ?? m.halftime_away ?? null;
+      
+      const ftHome = m.home_score ?? m.homeScore ?? 0;
+      const ftAway = m.away_score ?? m.awayScore ?? 0;
+
+      let htString = null;
+      if(htHome !== null && htAway !== null){
+        htString = `${htHome} - ${htAway}`;
+      } else if(m.ht_score){
+        htString = m.ht_score; // some APIs send "1 - 0" directly
+      } else if(m.halftime_score){
+        htString = m.halftime_score;
+      }
+
+      return {
+        id: m.id || `${m.home_team}-${m.away_team}`,
+        league: m.league?.name || m.competition || m.league_name || "League",
+        home: m.home_team || m.homeTeam || m.home_name || "Home",
+        away: m.away_team || m.awayTeam || m.away_name || "Away",
+        country: m.country || "Europe",
+        date: date,
+        status: m.status || m.match_status || "LIVE",
+        minute: m.minute || "",
+        // FT
+        score: `${ftHome} - ${ftAway}`,
+        ft_score: `${ftHome} - ${ftAway}`,
+        // HT - THIS FIXES YOUR YELLOW WARNING
+        ht_score: htString,
+        halftime: htString,
+        homeScore: ftHome,
+        awayScore: ftAway,
+        home_score: ftHome,
+        away_score: ftAway
+      };
+    });
 
     return new Response(JSON.stringify(clean),{
       headers:{
@@ -39,8 +64,9 @@ export async function onRequest(context){
         "Cache-Control":"public, max-age=60"
       }
     });
-  }catch(e){
-    return new Response(JSON.stringify([]),{
+
+  } catch(e){
+    return new Response(JSON.stringify({error:e.message, data:[]}),{
       headers:{"Content-Type":"application/json","Access-Control-Allow-Origin":"*"}
     });
   }
