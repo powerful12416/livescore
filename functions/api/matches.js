@@ -1,37 +1,13 @@
 export async function onRequest(context) {
-  const API_KEY = context.env.FOOTBALL_API_KEY;
+  const envKey = context.env.FOOTBALL_API_KEY;
+  const hardKey = "0bdde243a2a70a0beec84e06428e9b1357b906da3f74ef94ddb69472bb60c0a5";
+  const finalKey = envKey || hardKey;
   
-  if (!API_KEY) {
-    return new Response(JSON.stringify([]), {
-      headers: { "Content-Type": "application/json" }
-    });
-  }
-
-  const url = new URL(context.request.url);
-  const dateParam = url.searchParams.get('date') || 'today';
-  
-  let targetDate = new Date();
-  if (dateParam === 'yesterday') targetDate.setDate(targetDate.getDate()-1);
-  if (dateParam === 'tomorrow') targetDate.setDate(targetDate.getDate()+1);
-  if (dateParam === 'Sun 18') targetDate = new Date('2026-10-18');
-  if (dateParam === 'Thu 22') targetDate = new Date('2026-10-22');
-  
-  const dateStr = targetDate.toISOString().split('T')[0];
-
-  try {
-    const res = await fetch(`https://api.live-football-api.com/matches?date=${dateStr}`, {
-      headers: { "X-API-Key": API_KEY, "x-api-key": API_KEY }
-    });
-    const json = await res.json();
-    
-    // Return whatever API returns - normalize
-    const matches = json.data || json.matches || json || [];
-    return new Response(JSON.stringify(matches), {
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-    });
-  } catch (err) {
-    return new Response(JSON.stringify([]), {
-      headers: { "Content-Type": "application/json" }
-    });
-  }
+  return new Response(JSON.stringify({
+    hasKey: !!finalKey,
+    hasEnvKey: !!envKey,
+    usingHardcoded: !envKey,
+    keyLength: finalKey.length,
+    time: new Date().toISOString()
+  }), { headers: { "Content-Type": "application/json" } });
 }
