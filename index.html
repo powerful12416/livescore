@@ -1,187 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LiveScore 9SW - Live Football Scores</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<title>LiveScore 904 - Live Football Scores</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#0f1214;color:#fff;min-height:100vh}
-header{background:#1a1e21;padding:12px 15px;position:sticky;top:0;z-index:10;border-bottom:1px solid #2a2e31}
-.top{display:flex;justify-content:space-between;align-items:center}
-.logo{font-weight:800;font-size:20px;color:#00e676}
-.logo span{color:#fff}
-.verse{font-size:11px;color:#8a8e91;margin-top:8px;text-align:center;font-style:italic}
-.nav{display:flex;gap:8px;margin-top:12px;overflow-x:auto}
-.nav button{background:#2a2e31;border:none;color:#aaa;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap}
-.nav button.active{background:#00e676;color:#000}
-#dateBar{display:flex;gap:6px;padding:10px 15px;overflow-x:auto;background:#15181a}
-#dateBar button{background:transparent;border:1px solid #333;color:#888;padding:6px 10px;border-radius:8px;font-size:12px}
-#dateBar button.active{border-color:#00e676;color:#00e676}
-.league{background:#1a1e21;padding:10px 15px;font-size:12px;font-weight:700;color:#aaa;display:flex;align-items:center;gap:8px;border-top:1px solid #222;margin-top:8px}
-.league img{width:18px;height:18px}
-.match{background:#1e2225;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #262a2d}
-.match:active{background:#252a2d}
-.team{font-size:14px;line-height:20px}
-.team div{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.team .home{font-weight:600;color:#fff}
-.team .away{color:#c0c3c5}
-.center{text-align:center;min-width:70px}
-.time{font-size:12px;color:#00e676;font-weight:600}
-.score{font-size:18px;font-weight:800}
-.liveDot{width:6px;height:6px;background:#ff3b30;border-radius:50%;display:inline-block;animation:blink 1s infinite}
-.htft{font-size:10px;color:#8a8e91;margin-top:3px}
-.htft b{color:#d0d3d4}
-.status{font-size:10px;padding:2px 6px;border-radius:10px;display:inline-block;margin-top:4px}
-.s-live{background:#ff3b3015;color:#ff3b30;border:1px solid #ff3b30}
-.s-ht{background:#ffcc0015;color:#ffcc00;border:1px solid #ffcc00}
-.s-ft{background:#00e67615;color:#00e676;border:1px solid #00e676}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.empty{text-align:center;padding:40px 20px;color:#666;font-size:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:#0f1214;color:#fff}
+header{background:#1a1e21;padding:12px 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid #2a2f33;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;font-size:18px}.logo span{color:#ff3b30}
+#clock{font-size:11px;color:#888}
+.tabs{display:flex;gap:8px;padding:12px;background:#161a1d}
+.tabs button{background:#23282c;color:#888;border:none;padding:8px 16px;border-radius:20px;font-size:13px}
+.tabs button.active{background:#ff3b30;color:#fff}
+#content{padding:8px}
+.match{background:#1e2225;margin-bottom:8px;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.team{width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.score{font-weight:800;color:#ff3b30;min-width:70px;text-align:center}
+.league{background:#23282c;padding:8px 12px;margin:12px 0 4px;border-radius:6px;font-size:12px;color:#aaa}
+.status{font-size:10px;color:#666}
+.live{color:#00ff88!important;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.5}}
 </style>
 </head>
 <body>
 <header>
-  <div class="top">
-    <div class="logo">LiveScore <span>9SW</span></div>
-    <div style="font-size:11px;color:#888" id="clock">--:-- WAT</div>
-  </div>
-  <div class="nav">
-    <button class="active" onclick="loadGames('live',this)">Live</button>
-    <button onclick="loadGames('results',this)">Results</button>
-    <button onclick="loadGames('ht',this)">HT</button>
-    <button onclick="loadGames('table',this)">Table</button>
-  </div>
-  <div class="verse">“The Lord is my light and my salvation — whom shall I fear?” - Psalm 27:1 🙏</div>
+<div class="logo">LiveScore <span>904</span></div>
+<div id="clock">--:-- WAT</div>
 </header>
-
-<div id="dateBar"></div>
-<div id="content"></div>
-
+<div class="tabs">
+<button class="active" onclick="load('live')">Live</button>
+<button onclick="load('today')">Today</button>
+<button onclick="load('results')">Results</button>
+</div>
+<div id="content">Loading...</div>
 <script>
-let allMatches=[];
-const WAT = 'Africa/Lagos';
-
-function formatTime(utcStr){
-  try{
-    const d = new Date(utcStr);
-    if(isNaN(d)) return utcStr.slice(11,16);
-    return d.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',timeZone:WAT,hour12:false}) + ' WAT';
-  }catch{ return '--:--' }
-}
-
-function formatDateForAPI(d){
-  return d.toISOString().split('T')[0];
-}
-
-function buildDateBar(){
-  const bar=document.getElementById('dateBar');
-  let html='';
-  for(let i=-2;i<=2;i++){
-    const d=new Date(); d.setDate(d.getDate()+i);
-    const label=i==0?'Today':i==-1?'Yesterday':i==1?'Tomorrow':d.toLocaleDateString('en-NG',{weekday:'short',day:'2-digit'});
-    const iso=formatDateForAPI(d);
-    html+=`<button ${i==0?'class=active':''} onclick="fetchByDate('${iso}',this)">${label}</button>`;
-  }
-  bar.innerHTML=html;
-}
-
-async function fetchByDate(date,btn){
-  document.querySelectorAll('#dateBar button').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  document.getElementById('content').innerHTML='<div class=empty>Loading matches for '+date+'...</div>';
-  try{
-    const res=await fetch('/api?date='+date);
-    const text=await res.text();
-    let data;
-    try{ data=JSON.parse(text); }catch{
-      document.getElementById('content').innerHTML='<div class=empty>API not ready. Check FOOTBALL_API_KEY in Cloudflare.<br><small>'+text.slice(0,120)+'</small></div>';
-      return;
-    }
-    allMatches=Array.isArray(data)?data:(data.data||data.matches||[]);
-    if(!allMatches.length){
-      document.getElementById('content').innerHTML='<div class=empty>No matches for '+date+'. Try yesterday or your plan may need old date like 2024-05-01</div>';
-      return;
-    }
-    render('live');
-  }catch(e){
-    document.getElementById('content').innerHTML='<div class=empty>Error: '+e.message+'</div>';
-  }
-}
-
-function render(filter){
-  const c=document.getElementById('content');
-  let filtered=[...allMatches];
-  
-  if(filter==='live') filtered=filtered.filter(m=>{const s=(m.status||m.state||'').toLowerCase(); return s.includes('live')||s.includes('1h')||s.includes('2h')||s.includes('in play')});
-  if(filter==='results') filtered=filtered.filter(m=>{const s=(m.status||'').toLowerCase(); return s.includes('ft')||s.includes('finished')||s.includes('full')});
-  if(filter==='ht') filtered=filtered.filter(m=>{const s=(m.status||'').toLowerCase(); return s.includes('ht')||s.includes('half')});
-  
-  if(filter==='live' && filtered.length===0) filtered=[...allMatches]; // show all if no live
-  
-  if(!filtered.length){ c.innerHTML='<div class=empty>No '+filter+' matches now</div>'; return; }
-
-  // Group by league
-  const groups={};
-  filtered.forEach(m=>{
-    const league=m.league||m.competition||m.leagueName||'Other Leagues';
-    if(!groups[league]) groups[league]=[];
-    groups[league].push(m);
+const WAT='Africa/Lagos';
+function fmtTime(d){return new Date(d).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:WAT})+' WAT'}
+async function load(type){
+ document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+ event.target.classList.add('active');
+ const c=document.getElementById('content');
+ c.innerHTML='Loading...';
+ try{
+  const r=await fetch('/api/matches?v='+Date.now());
+  const matches=await r.json();
+  if(!matches.length){c.innerHTML='<div style="text-align:center;padding:40px;color:#666">No matches today<br>Check later</div>';return;}
+  let html=''; let lastLeague='';
+  matches.forEach(m=>{
+   const league=m.league?.name || m.competition || 'Match';
+   if(league!==lastLeague){html+=`<div class="league">${league}</div>`;lastLeague=league;}
+   const home=m.home_team?.name || m.homeTeam?.name || m.home_team || 'Home';
+   const away=m.away_team?.name || m.awayTeam?.name || m.away_team || 'Away';
+   const hs=m.home_score ?? m.scores?.home ?? m.score?.home ?? '-';
+   const as=m.away_score ?? m.scores?.away ?? m.score?.away ?? '-';
+   const status=m.status || m.state || '';
+   const isLive=status.toLowerCase().includes('live')||status.includes('1H')||status.includes('2H');
+   html+=`<div class="match"><div class="team">${home}</div><div class="score">${hs} - ${as}<div class="status ${isLive?'live':''}">${isLive?'LIVE '+ (m.minute||'') : fmtTime(m.date||m.kickoff||m.start_time)}</div></div><div class="team" style="text-align:right">${away}</div></div>`;
   });
-
-  let html='';
-  for(const league in groups){
-    html+=`<div class=league>⚽ ${league}</div>`;
-    groups[league].forEach(m=>{
-      const home=m.home||m.homeTeam?.name||m.teams?.home||'Home';
-      const away=m.away||m.awayTeam?.name||m.teams?.away||'Away';
-      const status=(m.status||m.state||'').toUpperCase();
-      const timeStr=m.time||m.date||m.startTime||'';
-      const displayTime=formatTime(timeStr);
-      
-      const ftScore=m.score||m.ft||`${m.homeScore||0} - ${m.awayScore||0}`;
-      const htScore=m.ht||m.halfTime||m.htScore||m.scoreHT||'';
-      
-      let statusBadge=`<div class="status s-ft">${status||'FT'}</div>`;
-      if(status.includes('LIVE')||status.includes('1H')||status.includes('2H')) statusBadge=`<span class=liveDot></span> <div class="status s-live">${status}</div>`;
-      if(status.includes('HT')) statusBadge=`<div class="status s-ht">HT</div>`;
-
-      // For Results tab, show HT + FT clearly
-      let htftLine='';
-      if(filter==='results' || status.includes('FT')){
-        htftLine=`<div class=htft>HT: <b>${htScore||'0-0'}</b> | FT: <b>${ftScore}</b></div>`;
-      }else if(htScore){
-        htftLine=`<div class=htft>HT: <b>${htScore}</b></div>`;
-      }
-
-      html+=`<div class=match>
-        <div class=team>
-          <div class=home>${home}</div>
-          <div class=away>${away}</div>
-        </div>
-        <div class=center>
-          <div class=time>${filter==='results'?'':displayTime}</div>
-          <div class=score>${ftScore.includes('-')?ftScore:ftScore}</div>
-          ${htftLine}
-          ${statusBadge}
-        </div>
-      </div>`;
-    });
-  }
   c.innerHTML=html;
+ }catch(e){c.innerHTML='Error loading: '+e.message}
 }
-
-function loadGames(type,btn){
-  if(btn){ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
-  if(type==='table'){ window.open('/standings.html','_self'); return; }
-  render(type);
-}
-
-setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',timeZone:WAT})+' WAT'; },1000);
-buildDateBar();
-fetchByDate(formatDateForAPI(new Date()));
+load('live');
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-GB',{timeZone:WAT,hour:'2-digit',minute:'2-digit'})+' WAT'},1000);
+setInterval(()=>load('live'),30000);
 </script>
 </body>
 </html>
